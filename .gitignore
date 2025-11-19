@@ -122,6 +122,5 @@ secrets/
 credentials.json
 
 # Project specific
-.plan.md
-*.plan.md
+# (plan files are now tracked for documentation purposes)
 
