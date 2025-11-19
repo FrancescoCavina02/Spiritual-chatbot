@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SearchBar from '@/components/notes/SearchBar';
 
 /**
  * Home Page
@@ -7,6 +8,8 @@ import Link from 'next/link';
  * - It's mostly static content
  * - No interactivity or React hooks needed
  * - Renders faster on the server
+ * 
+ * Note: SearchBar is a Client Component, but can be used inside Server Components!
  */
 export default function Home() {
   return (
@@ -22,6 +25,11 @@ export default function Home() {
           An intelligent companion drawing wisdom from 1,649 notes across spirituality, 
           psychology, self-help, and philosophy to guide you through life's challenges.
         </p>
+        
+        {/* Search Bar */}
+        <div className="max-w-3xl mx-auto pt-4">
+          <SearchBar placeholder="Search 1,649 notes with semantic AI..." />
+        </div>
         
         {/* CTA Buttons */}
         <div className="flex gap-4 justify-center pt-4">
