@@ -49,11 +49,7 @@ class VectorDBService:
             # Get or create collection
             self.collection = self.client.get_or_create_collection(
                 name=self.collection_name,
-                metadata={
-                    "hnsw:space": "cosine",  # Cosine similarity
-                    "hnsw:M": 16,  # Connectivity
-                    "hnsw:ef_construction": 200  # Index quality
-                }
+                metadata={"hnsw:space": "cosine"}
             )
             
             logger.info(f"ChromaDB initialized. Collection: {self.collection_name}")
