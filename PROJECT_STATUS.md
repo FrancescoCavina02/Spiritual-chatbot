@@ -231,8 +231,9 @@ Quality: Excellent - matches project vision perfectly
 - Citations link to source notes with relevance scores  
 - Conversations persist across page refreshes
 - Semantic search across 1,772 indexed chunks
-- Note browser shows 11 categories with statistics
+- Note browser shows **13 categories** with statistics (including General & YouTube Videos)
 - Home page with integrated search bar
+- **ALL Obsidian vault content indexed** (1,649 notes, 102 books)
 
 **Issues Fixed:**
 - ✅ Streaming response format mismatch
