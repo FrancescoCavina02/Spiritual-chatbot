@@ -260,22 +260,24 @@ Quality: Excellent - matches project vision perfectly
 **Vault Structure Understanding:**
 - **Flat Categories** (4): Articles, Huberman Lab, Movies, Podcast
   - Each .md file = standalone lesson/topic
-- **Hierarchical Categories** (8): Fiction, General, Mathematics, Philosophy, Science, Self-Help, Spiritual, YouTube Videos
+- **Hierarchical Categories** (5): General, Mathematics, Philosophy, Science, Self-Help, Spiritual, Fiction, YouTube Videos
   - Each subfolder = book/video with tree structure
-  - Root note ("Notes - Book.md") contains [[Chapter]] links
+  - Root note (various patterns: "Notes - Book.md", "Book Notes.md", "a Book notes.md") contains [[Chapter]] links
   - Recursive tree: Chapters → Sections → Subsections → Leaves
+  - **69 books** detected across all hierarchical categories
 
 **Implementation Plan:**
 
 **✅ Phase 1: Backend Tree Parsing** (Complete)
 - ✅ Parse [[wiki links]] from all notes
-- ✅ Identify root notes (filename pattern: "Notes - *.md")
+- ✅ Flexible root note detection (supports "Notes - Book", "Book Notes", "a Book notes", etc.)
 - ✅ Build parent-child relationships recursively
 - ✅ Mark leaves (notes with no [[links]]) vs branches
+- ✅ Heuristic detection: short files with ≥2 [[links]] = root notes
 - ✅ Successfully tested with A New Earth (10 chapters, 97 notes)
 
 **✅ Phase 2: Backend API** (Complete)
-- ✅ GET /api/tree/books - Lists all 38 books with chapter/note counts
+- ✅ GET /api/tree/books - Lists all **69 books** across 9 categories (+82% improvement)
 - ✅ GET /api/tree/{category}/{book} - Returns complete tree structure
 - ✅ GET /api/tree/navigation/{file_path} - Navigation context (breadcrumbs, siblings, children, parent)
 - ✅ Cached tree structures on server startup for performance
