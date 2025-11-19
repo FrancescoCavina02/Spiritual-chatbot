@@ -9,15 +9,20 @@ class ChatRequest(BaseModel):
     """Request model for chat endpoint"""
     message: str = Field(..., description="User message", min_length=1, max_length=5000)
     conversation_id: Optional[str] = Field(None, description="Conversation ID for context")
-    model: str = Field("llama3.1", description="LLM model to use")
+    provider: str = Field("openai", description="LLM provider to use (openai, anthropic, google, ollama)")
     category_filter: Optional[str] = Field(None, description="Filter context by category")
+    stream: bool = Field(False, description="Whether to stream the response")
+    
+    # Backward compatibility alias
+    model: Optional[str] = Field(None, description="Deprecated: use 'provider' instead")
     
     class Config:
         json_schema_extra = {
             "example": {
                 "message": "How can I practice mindfulness in daily life?",
-                "model": "llama3.1",
-                "category_filter": "Spiritual"
+                "provider": "openai",
+                "category_filter": "Spiritual",
+                "stream": False
             }
         }
 

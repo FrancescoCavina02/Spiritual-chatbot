@@ -30,8 +30,11 @@ async def chat(request: ChatRequest):
         rag_engine = get_rag_engine()
         llm_service = get_llm_service()
         
+        # Get provider (support backward compatibility with 'model' field)
+        provider_to_use = request.provider or request.model or "openai"
+        
         # Check if requested provider is available
-        if not llm_service.is_available(request.model):
+        if not llm_service.is_available(provider_to_use):
             available = llm_service.get_available_providers()
             if not available:
                 raise HTTPException(
@@ -39,10 +42,10 @@ async def chat(request: ChatRequest):
                     detail="No LLM providers available. Please check Ollama is running or API keys are configured."
                 )
             # Use first available provider
-            model_to_use = available[0]
-            logger.warning(f"Model {request.model} not available, using {model_to_use}")
+            logger.warning(f"Provider '{provider_to_use}' not available. Available: {available}. Using {available[0]}")
+            provider_to_use = available[0]
         else:
-            model_to_use = request.model
+            logger.info(f"Using provider: {provider_to_use}")
         
         # Step 1: Retrieve relevant context
         context, citations = rag_engine.retrieve_context(
@@ -60,7 +63,7 @@ async def chat(request: ChatRequest):
         # Step 3: Generate response
         response_text = await llm_service.generate(
             prompt=prompt,
-            provider=model_to_use,
+            provider=provider_to_use,
             temperature=0.7,
             max_tokens=1000
         )
@@ -77,7 +80,7 @@ async def chat(request: ChatRequest):
             message=response_text,
             conversation_id=conversation_id,
             citations=citations,
-            model_used=model_to_use,
+            model_used=provider_to_use,
             processing_time_ms=processing_time
         )
     
@@ -103,15 +106,16 @@ async def chat_stream(request: ChatRequest):
             rag_engine = get_rag_engine()
             llm_service = get_llm_service()
             
-            # Check model availability
-            if not llm_service.is_available(request.model):
+            # Get provider (support backward compatibility)
+            provider_to_use = request.provider or request.model or "openai"
+            
+            # Check provider availability
+            if not llm_service.is_available(provider_to_use):
                 available = llm_service.get_available_providers()
                 if not available:
                     yield f"data: {{'error': 'No LLM providers available'}}\n\n"
                     return
-                model_to_use = available[0]
-            else:
-                model_to_use = request.model
+                provider_to_use = available[0]
             
             # Retrieve context
             context, citations = rag_engine.retrieve_context(
@@ -133,14 +137,14 @@ async def chat_stream(request: ChatRequest):
             # Stream response
             async for chunk in llm_service.generate_stream(
                 prompt=prompt,
-                provider=model_to_use,
+                provider=provider_to_use,
                 temperature=0.7,
                 max_tokens=1000
             ):
                 yield f"data: {json.dumps({'type': 'text', 'data': chunk})}\n\n"
             
             # Send completion signal
-            yield f"data: {json.dumps({'type': 'done', 'model': model_to_use})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'model': provider_to_use})}\n\n"
         
         except Exception as e:
             logger.error(f"Streaming error: {e}", exc_info=True)
