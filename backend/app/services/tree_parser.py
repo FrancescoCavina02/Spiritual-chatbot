@@ -79,7 +79,19 @@ class TreeParser:
     
     def is_root_note(self, note: Note) -> bool:
         """
-        Check if a note is a root note (filename starts with "Notes - ")
+        Check if a note is a root note
+        
+        A root note is identified by:
+        1. Filename contains "notes" (case-insensitive)
+        2. Located in book folder root (not in /files or /zfiles subfolder)
+        3. Typically shorter and mostly contains [[links]]
+        
+        Examples of root note patterns:
+        - "Notes - Bookname.md"
+        - "Notes Bookname.md"
+        - "Bookname Notes.md"
+        - "Bookname - Notes.md"
+        - "a Bookname notes.md"
         
         Args:
             note: Note object
@@ -87,9 +99,32 @@ class TreeParser:
         Returns:
             True if note is a root node
         """
-        # Check the filename, not the title
-        filename = Path(note.file_path).name
-        return filename.startswith("Notes - ") or filename.startswith("notes - ")
+        filename = Path(note.file_path).name.lower()
+        parent_dir = Path(note.file_path).parent.name.lower()
+        
+        # Must contain "notes" in filename
+        if "notes" not in filename:
+            return False
+        
+        # Should NOT be in a subfolder like "files" or "zfiles"
+        # (those typically contain chapter/section notes)
+        if parent_dir in ["files", "zfiles", "file"]:
+            return False
+        
+        # Additional heuristic: root notes are typically shorter and mostly [[links]]
+        # Count [[links]] vs total content length
+        wiki_links = self.extract_wiki_links(note.content)
+        
+        # If the note has many [[links]] and short content, likely a root (TOC)
+        # Root notes are typically < 1000 chars and have at least 2 [[links]]
+        if len(wiki_links) >= 2 and len(note.content) < 1000:
+            return True
+        
+        # Fallback: if filename starts with "notes" or "a notes" pattern
+        if filename.startswith("notes ") or filename.startswith("notes-") or filename.startswith("a "):
+            return True
+        
+        return False
     
     def find_note_by_link_text(self, link_text: str, base_category: str) -> Optional[Note]:
         """
