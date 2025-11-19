@@ -46,6 +46,55 @@ export interface ChatRequest {
   category_filter?: string;
 }
 
+// Tree Navigation Types
+export interface TreeNode {
+  id: string;
+  title: string;
+  file_path: string;
+  is_root: boolean;
+  is_leaf: boolean;
+  depth: number;
+  children_count: number;
+  wiki_links: string[];
+  children: TreeNode[];
+}
+
+export interface BookMetadata {
+  book_name: string;
+  title: string;
+  file_path: string;
+  chapter_count: number;
+  note_count: number;
+}
+
+export interface BookTreeResponse {
+  category: string;
+  book_name: string;
+  tree: TreeNode;
+}
+
+export interface BreadcrumbItem {
+  title: string;
+  file_path: string;
+}
+
+export interface NavigationContext {
+  note: {
+    id: string;
+    title: string;
+    file_path: string;
+    category: string;
+    book: string | null;
+  };
+  is_in_tree: boolean;
+  breadcrumbs: BreadcrumbItem[];
+  parent: BreadcrumbItem | null;
+  siblings: BreadcrumbItem[];
+  children: BreadcrumbItem[];
+  is_leaf: boolean;
+  depth: number;
+}
+
 export interface SearchResult {
   chunk_id: string;
   title: string;
@@ -255,5 +304,41 @@ export async function chat(request: ChatRequest): Promise<{
   }
 
   return { response: fullResponse, citations };
+}
+
+/**
+ * Tree Navigation API Functions
+ */
+
+/**
+ * Get all books grouped by category
+ */
+export async function getAllBooks(): Promise<Record<string, BookMetadata[]>> {
+  const res = await fetch(`${API_BASE_URL}/api/tree/books`);
+  if (!res.ok) throw new Error('Failed to fetch books');
+  const data = await res.json();
+  return data.categories;
+}
+
+/**
+ * Get full tree structure for a specific book
+ */
+export async function getBookTree(category: string, bookName: string): Promise<BookTreeResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}/api/tree/${encodeURIComponent(category)}/${encodeURIComponent(bookName)}`
+  );
+  if (!res.ok) throw new Error('Failed to fetch book tree');
+  return res.json();
+}
+
+/**
+ * Get navigation context for a specific note
+ */
+export async function getNoteNavigation(filePath: string): Promise<NavigationContext> {
+  const res = await fetch(
+    `${API_BASE_URL}/api/tree/navigation/${encodeURIComponent(filePath)}`
+  );
+  if (!res.ok) throw new Error('Failed to fetch navigation context');
+  return res.json();
 }
 
