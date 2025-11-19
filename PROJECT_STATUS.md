@@ -193,7 +193,20 @@ Quality: Excellent - matches project vision perfectly
 
 ## 🚧 In Progress
 
-### 8. Frontend Development (Next Priority)
+### 8. LLM Provider Testing & Optimization (Current)
+**Status:** In Progress  
+**What's Done:**
+- ✅ Backend supports multiple LLM providers (OpenAI, Anthropic, Google, Ollama)
+- ✅ Ollama tested (conclusion: too slow/heavy for M2 MacBook Air)
+- ✅ Created comprehensive testing script (`scripts/test_llm_comparison.py`)
+
+**Next Steps:**
+1. Set up OpenAI API key in environment
+2. Test OpenAI performance (expect ~3-5s vs 78s with Ollama)
+3. Compare response quality and citation accuracy
+4. Document performance benchmarks for UvA portfolio
+
+### 9. Frontend Development (Next Priority)
 **Status:** Not Started  
 **Next Steps:**
 1. Initialize Next.js 14 project with Tailwind CSS
