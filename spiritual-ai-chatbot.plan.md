@@ -122,15 +122,16 @@ Implement intelligent chunking strategy for RAG:
 - ✅ Using all-MiniLM-L6-v2 (local, fast, free, 384 dimensions)
 - ✅ Generated 1,772 chunks from 1,649 notes
 - ✅ Store embeddings in ChromaDB with metadata filters
+- ✅ **All 13 categories indexed** including General (162 chunks) and YouTube Videos (21 chunks)
 
 ### 1.4 Vector Database Setup ✅
 
 **ChromaDB Implementation:**
 - ✅ Collection for note chunks with metadata
-- ✅ Filters by category (Spiritual, Self-Help, Science, etc.)
+- ✅ Filters by 13 categories (Spiritual, Self-Help, Science, General, YouTube Videos, etc.)
 - ✅ Semantic search with cosine similarity
 - ✅ Persist to disk for quick startup
-- ✅ 1,772 chunks indexed and searchable
+- ✅ 1,772 chunks indexed and searchable across 102 books
 
 ---
 

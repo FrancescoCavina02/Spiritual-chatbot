@@ -81,8 +81,8 @@ spiritual-ai-guide/
 ```
 Total notes: 1,649
 Total words: 298,169
-Categories: 13 (Spiritual, Self-Help, Science, Philosophy, etc.)
-Books: 100+
+Categories: 13 (Spiritual, Self-Help, Science, Philosophy, General, YouTube Videos, etc.)
+Books: 102
 ```
 
 ### 3. Text Chunking & Embeddings ✓
@@ -124,8 +124,9 @@ Similarity scoring: Working correctly
 - ✅ Cosine similarity search
 - ✅ Metadata filtering (category, book)
 - ✅ Batch ingestion
-- ✅ Statistics and health checks
+- ✅ Statistics and health checks (fixed to read ALL chunks, not just 1000)
 - ✅ Query with embeddings or raw text
+- ✅ **13 categories indexed**: Science (737), Spiritual (356), Self-Help (251), General (162), Mathematics (91), Philosophy (66), Podcast (50), Huberman Lab (29), YouTube Videos (21), Fiction (6), Articles (1), Movies (1), Itaca (1)
 
 **Configuration:**
 - ✅ HNSW index with M=16, ef_construction=200
@@ -239,13 +240,13 @@ Quality: Excellent - matches project vision perfectly
 - ✅ Note lookup by file_path via ChromaDB
 - ✅ Route ordering for categories endpoint
 - ✅ Conversation persistence implementation
+- ✅ **General & YouTube Videos categories ingestion** (Bug fix: get_statistics() was only sampling 1000/1772 chunks)
 
 **Current Limitations:**
 - Individual note viewer (placeholder - planned for Phase 4)
 - Category detail pages (placeholder - planned for Phase 4)
 - Conversation sidebar/history UI (functionality works, UI pending)
 - Export conversations feature (planned)
-- "General" category missing from ChromaDB (needs re-ingestion)
 
 ---
 
