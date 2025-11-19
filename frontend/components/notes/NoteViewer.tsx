@@ -50,8 +50,58 @@ export default function NoteViewer({ note }: NoteViewerProps) {
     fetchNavigation();
   }, [note.file_path]);
 
+  /**
+   * Smart wiki link resolver
+   * 
+   * Converts [[wiki links]] to proper markdown links using navigation context.
+   * If we have children/siblings in navContext, we can map link text to actual file paths.
+   * Otherwise, fall back to using link text directly (may not work for all cases).
+   */
+  const resolveWikiLinks = (content: string): string => {
+    if (!navContext) {
+      // No navigation context yet, return content as-is with basic conversion
+      return wikiLinksToMarkdown(content, '/notes');
+    }
+
+    // Build a map of link text → file path from children and siblings
+    const linkMap = new Map<string, string>();
+    
+    // Add children (most common case - links point to children)
+    navContext.children.forEach(child => {
+      linkMap.set(child.title.toLowerCase(), child.file_path);
+      // Also add without common prefixes for more flexible matching
+      const withoutChapter = child.title.replace(/^chapter \d+ - /i, '');
+      linkMap.set(withoutChapter.toLowerCase(), child.file_path);
+    });
+    
+    // Add siblings (for cross-references between chapters)
+    navContext.siblings.forEach(sibling => {
+      linkMap.set(sibling.title.toLowerCase(), sibling.file_path);
+      const withoutChapter = sibling.title.replace(/^chapter \d+ - /i, '');
+      linkMap.set(withoutChapter.toLowerCase(), sibling.file_path);
+    });
+
+    // Replace [[wiki links]] with proper markdown links
+    return content.replace(/\[\[(.*?)\]\]/g, (match, linkText) => {
+      const trimmedText = linkText.trim();
+      const lowerText = trimmedText.toLowerCase();
+      
+      // Try to find the file path
+      const filePath = linkMap.get(lowerText);
+      
+      if (filePath) {
+        // Found it! Use the proper file path
+        return `[${trimmedText}](/notes/${encodeURIComponent(filePath)})`;
+      } else {
+        // Not found in children/siblings - might be an external link
+        // Fall back to searching by title (backend will handle it)
+        return `[${trimmedText}](/notes/${encodeURIComponent(trimmedText)})`;
+      }
+    });
+  };
+
   // Convert [[wiki links]] to markdown links for rendering
-  const contentWithLinks = wikiLinksToMarkdown(note.content, '/notes');
+  const contentWithLinks = resolveWikiLinks(note.content);
 
   return (
     <div className="max-w-5xl mx-auto">
