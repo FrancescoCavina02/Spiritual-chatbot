@@ -106,11 +106,14 @@ temp/
 *.backup
 *~
 
-# Models (large files)
-models/
+# ML Model files (large binaries)
+# Note: This ignores model binaries but NOT backend/app/models/ (Python code)
+/models/
 *.bin
 *.safetensors
 *.gguf
+*.pt
+*.pth
 
 # API Keys and secrets
 secrets/
