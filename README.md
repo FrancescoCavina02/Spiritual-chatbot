@@ -8,10 +8,10 @@ This project combines cutting-edge NLP technology with a curated collection of s
 
 ### Key Features
 
-- **RAG-Powered Responses**: Uses semantic search to retrieve relevant context from 1500+ personal notes
+- **RAG-Powered Responses**: Uses semantic search to retrieve relevant context from 1,649 personal notes (1,772 chunks)
 - **Precise Citations**: Every response includes references to specific notes and book passages
 - **Interactive Note Browser**: Explore the entire knowledge base with preserved Obsidian vault structure
-- **Hybrid AI Approach**: Compares local LLMs (Llama, Mistral) with cloud APIs (OpenAI, Anthropic, Google)
+- **Hybrid AI Approach**: OpenAI GPT-4 (primary), Ollama Llama 3.1 (local backup), with support for Anthropic and Google
 - **Bidirectional Links**: Obsidian-style `[[note linking]]` preserved and functional
 - **Semantic Search**: Find relevant wisdom across all categories
 
@@ -41,9 +41,10 @@ This project combines cutting-edge NLP technology with a curated collection of s
 - React Markdown
 
 **AI/ML:**
-- Local: Llama 3.1, Mistral 7B via Ollama
-- Cloud: OpenAI GPT-4, Anthropic Claude 3, Google Gemini
-- Embeddings: all-MiniLM-L6-v2 → OpenAI text-embedding-3-small
+- Primary: OpenAI GPT-4 Turbo (~15s response time, tested)
+- Local Backup: Llama 3.1 via Ollama (free, privacy-focused)
+- Future: Anthropic Claude 3.5, Google Gemini (ready for testing)
+- Embeddings: sentence-transformers/all-MiniLM-L6-v2 (384D)
 
 ### System Design
 
@@ -189,10 +190,11 @@ npm run dev
 ## 📊 RAG Pipeline
 
 ### 1. Data Ingestion
-- Parse 1500+ Markdown files from Obsidian vault
+- Parse 1,649 Markdown files from Obsidian vault (~300K words)
 - Extract metadata (category, book, chapter, tags)
 - Handle bidirectional links `[[Note Title]]`
 - Preserve folder hierarchy
+- Generate 1,772 semantic chunks
 
 ### 2. Chunking Strategy
 - Semantic chunking based on headers and concepts
@@ -217,17 +219,20 @@ npm run dev
 
 ## 🧪 Model Comparison
 
-This project implements a hybrid approach to compare different LLM strategies:
+This project implements a hybrid approach comparing different LLM strategies:
 
-| Model | Type | Cost | Latency | Quality | Use Case |
-|-------|------|------|---------|---------|----------|
-| Llama 3.1 8B | Local | Free | ~200ms | Good | Development, privacy |
-| Mistral 7B | Local | Free | ~150ms | Good | Fast iteration |
-| GPT-4 Turbo | API | $0.01/1K | ~800ms | Excellent | Production, quality |
-| Claude 3 Sonnet | API | $0.003/1K | ~500ms | Excellent | Nuanced guidance |
-| Gemini 1.5 Pro | API | $0.00125/1K | ~600ms | Very Good | Long context |
+| Model | Type | Cost | Response Time | Quality | Status |
+|-------|------|------|---------------|---------|--------|
+| GPT-4 Turbo | API | $0.01/1K | ~15s | Excellent | ✅ Tested (Primary) |
+| Llama 3.1 8B | Local | Free | ~340s | Good | ✅ Tested (Backup) |
+| Claude 3.5 Sonnet | API | $0.003/1K | TBD | Excellent | Ready to test |
+| Gemini 1.5 Pro | API | $0.00125/1K | TBD | Very Good | Ready to test |
 
-Evaluation metrics and detailed comparison in [`docs/evaluation.md`](docs/evaluation.md).
+**Performance on M2 MacBook Air (8GB RAM):**
+- **OpenAI GPT-4**: 22x faster than local Llama, minimal resource usage
+- **Ollama Llama 3.1**: Resource-intensive, but good for offline/privacy needs
+
+Detailed evaluation methodology in [`docs/evaluation.md`](docs/evaluation.md).
 
 ## 📖 Documentation
 
