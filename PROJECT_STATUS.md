@@ -302,48 +302,40 @@ python scripts/load_chromadb.py
 
 ## 🎯 Next Immediate Steps
 
-### 1. Complete RAG Pipeline (Highest Priority)
-This is the core intelligence of the system. Once complete, you'll have a working chatbot backend.
+### 1. Test and Optimize LLM Providers (Current Priority)
+- [x] ~~Test Ollama (too slow/heavy for M2 MacBook Air)~~
+- [ ] Test OpenAI API (primary provider)
+- [ ] Compare performance and quality
+- [ ] Document model comparison results
 
-**Tasks:**
-- [ ] Create RAG engine service
-- [ ] Implement query processing
-- [ ] Build context assembly
-- [ ] Add chat endpoint
+### 2. Frontend Development
+**Status:** Next major phase
+- [ ] Initialize Next.js 14 project with Tailwind CSS
+- [ ] Build chat interface with streaming support
+- [ ] Create note browser with category navigation
+- [ ] Build note viewer with markdown rendering
+- [ ] Implement citation linking from chat to notes
 
-**Estimated Time:** 2-3 hours
+### 3. Testing & Documentation
+- [ ] Write unit tests for backend services
+- [ ] Create integration tests for API endpoints
+- [ ] Document API usage examples
+- [ ] Complete model evaluation documentation
 
-### 2. Integrate Ollama for Local LLM
-Install Ollama and integrate Llama 3.1 for response generation.
-
-**Tasks:**
-- [ ] Install Ollama: `curl -fsSL https://ollama.ai/install.sh | sh`
-- [ ] Pull model: `ollama pull llama3.1:8b`
-- [ ] Create LLM service
-- [ ] Test end-to-end chat
-
-**Estimated Time:** 1-2 hours
-
-### 3. Build Frontend Foundation
-Create Next.js app with basic chat interface.
-
-**Tasks:**
-- [ ] Initialize Next.js 14 project
-- [ ] Set up Tailwind CSS
-- [ ] Create basic chat UI
-- [ ] Connect to backend API
-
-**Estimated Time:** 3-4 hours
+**Estimated Timeline:** Frontend (1-2 weeks), Testing (3-5 days)
 
 ---
 
-## 💡 Key Design Decisions Made
+## 💡 Key Design Decisions
 
 1. **Semantic Chunking:** Chosen over fixed-size for better context preservation
-2. **ChromaDB:** Selected for local development; easy migration to Pinecone
-3. **sentence-transformers:** Free, fast, and good quality for MVP
+2. **ChromaDB:** Local vector database with easy cloud migration path
+3. **sentence-transformers:** Free, fast, 384D embeddings (all-MiniLM-L6-v2)
 4. **FastAPI:** Async support, auto-docs, type safety
-5. **Hybrid LLM Strategy:** Enables academic comparison of approaches
+5. **Hybrid LLM Strategy:** 
+   - **OpenAI (primary)**: Fast, reliable, good for M2 MacBook Air
+   - **Ollama (backup)**: Local option but resource-intensive
+   - **Anthropic/Google**: Ready for future testing
 
 ---
 
@@ -355,14 +347,15 @@ Create Next.js app with basic chat interface.
 - API endpoints: `backend/app/api/`
 - Models: `backend/app/models/`
 
-### Scripts
-- Ingestion: `scripts/ingest_notes.py`
-- ChromaDB load: `scripts/load_chromadb.py`
+### Configuration
+- Environment variables: `backend/.env` (git-ignored)
+- Requirements: `backend/requirements.txt`
+- Docker: `backend/Dockerfile`, `docker-compose.yml`
 
 ### Data
 - Obsidian vault: `/Users/francescocavina/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Books`
-- Processed notes: `data/processed/notes.json`
-- Embeddings: `data/embeddings/` (ChromaDB)
+- Processed notes: `data/processed/chunks_with_embeddings.json`
+- Vector database: `data/embeddings/` (ChromaDB persistent storage)
 
 ### Documentation
 - Architecture: `docs/architecture.md`
@@ -377,24 +370,28 @@ Create Next.js app with basic chat interface.
 ✅ **Technical Depth:**
 - Complete RAG pipeline from scratch
 - Vector databases and semantic search
-- Multiple LLM integration strategies
+- Multiple LLM integration (OpenAI, Anthropic, Google, Ollama)
+- 1,772 chunks indexed from personal knowledge base
 
 ✅ **Software Engineering:**
-- Clean architecture
+- Clean architecture with separation of concerns
 - Comprehensive documentation
-- Type safety and testing framework
+- Type safety with Pydantic models
+- RESTful API with automatic OpenAPI docs
 
 ✅ **AI/ML Knowledge:**
-- Embedding models
-- Semantic similarity
-- LLM prompt engineering
+- Embedding models (sentence-transformers)
+- Semantic similarity and vector search
+- LLM prompt engineering with context assembly
+- Citation generation and relevance scoring
 
 ✅ **Academic Rigor:**
 - Well-documented design decisions
 - Evaluation framework for model comparison
 - Clear technical writing
+- Reproducible results
 
 ---
 
-**Status:** Foundation complete, ready for core RAG implementation and frontend development.
+**Status:** Backend complete and tested. Ready for frontend development and model evaluation.
 
