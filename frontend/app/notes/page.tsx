@@ -130,7 +130,7 @@ function CategoryCard({ category, noteCount }: { category: string; noteCount: nu
   const color = getCategoryColor(category);
 
   return (
-    <Link href={`/notes/${encodeURIComponent(category)}`}>
+    <Link href={`/notes/category/${encodeURIComponent(category)}`}>
       <div
         className={`bg-gradient-to-br ${color} rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 cursor-pointer`}
       >

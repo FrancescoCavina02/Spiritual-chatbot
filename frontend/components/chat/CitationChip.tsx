@@ -18,8 +18,8 @@ interface CitationChipProps {
 
 export default function CitationChip({ citation }: CitationChipProps) {
   // Extract note name from file path (e.g., "Spiritual/A New Earth/Note.md" -> "Note")
-  const noteName = citation.metadata?.title || extractNoteNameFromPath(citation.file_path);
-  const category = citation.metadata?.category || 'Unknown';
+  const noteName = citation.title || extractNoteNameFromPath(citation.file_path);
+  const category = citation.category || 'Unknown';
   
   // Calculate relevance percentage
   const relevancePercent = Math.round(citation.relevance_score * 100);

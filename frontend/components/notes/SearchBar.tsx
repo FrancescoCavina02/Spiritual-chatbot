@@ -150,7 +150,7 @@ function SearchResultItem({
   onClick: () => void;
 }) {
   const relevancePercent = Math.round(result.relevance_score * 100);
-  const noteLink = `/notes/${encodeURIComponent(result.metadata.file_path)}`;
+  const noteLink = `/notes/${encodeURIComponent(result.file_path)}`;
 
   return (
     <Link href={noteLink} onClick={onClick}>
@@ -159,11 +159,11 @@ function SearchResultItem({
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
             <h3 className="font-semibold text-gray-800">
-              {result.metadata.title || extractNoteNameFromPath(result.metadata.file_path)}
+              {result.title || extractNoteNameFromPath(result.file_path)}
             </h3>
             <p className="text-xs text-gray-500">
-              {result.metadata.category && `📁 ${result.metadata.category}`}
-              {result.metadata.book && ` • 📖 ${result.metadata.book}`}
+              {result.category && `📁 ${result.category}`}
+              {result.book && ` • 📖 ${result.book}`}
             </p>
           </div>
           {/* Relevance Badge */}
@@ -173,7 +173,7 @@ function SearchResultItem({
         </div>
 
         {/* Content Preview */}
-        <p className="text-sm text-gray-600 line-clamp-2">{result.content}</p>
+        <p className="text-sm text-gray-600 line-clamp-2">{result.text}</p>
       </div>
     </Link>
   );

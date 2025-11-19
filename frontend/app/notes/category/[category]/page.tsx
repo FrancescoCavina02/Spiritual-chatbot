@@ -8,6 +8,9 @@ import Link from 'next/link';
  * 
  * This page will display all notes in a specific category.
  * Currently a placeholder - full implementation coming soon!
+ * 
+ * Route: /notes/category/[category]
+ * Example: /notes/category/Spiritual
  */
 export default function CategoryNotesPage() {
   const params = useParams();

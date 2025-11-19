@@ -37,13 +37,13 @@ export default function CitationPanel({ citations }: CitationPanelProps) {
 
             {/* Citation Excerpt */}
             <p className="text-sm text-gray-700 line-clamp-3 mt-2">
-              {citation.content}
+              {citation.snippet}
             </p>
 
             {/* Metadata */}
-            {citation.metadata?.book && (
+            {citation.book && (
               <p className="text-xs text-gray-500 mt-2">
-                📖 {citation.metadata.book}
+                📖 {citation.book}
               </p>
             )}
           </div>

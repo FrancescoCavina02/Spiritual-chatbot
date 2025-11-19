@@ -24,15 +24,12 @@ export interface Note {
 }
 
 export interface Citation {
+  title: string;
+  category: string;
+  book?: string | null;
   file_path: string;
-  chunk_id: string;
+  snippet: string;
   relevance_score: number;
-  content: string;
-  metadata?: {
-    category?: string;
-    book?: string;
-    title?: string;
-  };
 }
 
 export interface ChatMessage {
@@ -51,14 +48,12 @@ export interface ChatRequest {
 
 export interface SearchResult {
   chunk_id: string;
-  content: string;
+  title: string;
+  category: string;
+  book?: string | null;
+  file_path: string;
+  text: string;
   relevance_score: number;
-  metadata: {
-    file_path: string;
-    category?: string;
-    book?: string;
-    title?: string;
-  };
 }
 
 export interface Stats {
@@ -149,11 +144,13 @@ export async function getCategories(): Promise<string[]> {
  * 
  * This function returns a ReadableStream for streaming responses.
  * The backend uses Server-Sent Events (SSE) for real-time updates.
+ * 
+ * IMPORTANT: Calls /api/chat/stream (not /api/chat)
  */
 export async function chatWithStreaming(
   request: ChatRequest
 ): Promise<ReadableStream<Uint8Array>> {
-  const response = await fetch(`${API_BASE_URL}/api/chat`, {
+  const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
@@ -170,6 +167,11 @@ export async function chatWithStreaming(
  * 
  * Helper function to parse SSE data from the chat endpoint.
  * Yields each message as it arrives.
+ * 
+ * Backend format:
+ * - {"type": "text", "data": "word"}
+ * - {"type": "citations", "data": [...]}
+ * - {"type": "done", "model": "openai"}
  */
 export async function* parseSSEStream(
   stream: ReadableStream<Uint8Array>
@@ -194,9 +196,32 @@ export async function* parseSSEStream(
           
           try {
             const parsed = JSON.parse(data);
-            yield parsed;
+            
+            // Transform backend format to frontend format
+            if (parsed.type === 'text') {
+              // Backend: {"type": "text", "data": "word"}
+              // Frontend: {"type": "token", "content": "word"}
+              yield {
+                type: 'token',
+                content: parsed.data || '',
+              };
+            } else if (parsed.type === 'citations') {
+              // Backend: {"type": "citations", "data": [...]}
+              // Frontend: {"type": "citations", "citations": [...]}
+              yield {
+                type: 'citations',
+                content: '',
+                citations: parsed.data || [],
+              };
+            } else if (parsed.type === 'done') {
+              // Done signal
+              return;
+            } else if (parsed.type === 'error') {
+              console.error('Stream error:', parsed.data);
+              throw new Error(parsed.data);
+            }
           } catch (e) {
-            console.error('Failed to parse SSE data:', data);
+            console.error('Failed to parse SSE data:', data, e);
           }
         }
       }
