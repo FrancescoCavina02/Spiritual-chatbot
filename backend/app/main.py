@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 import logging
 
-from app.api import search, notes, chat
+from app.api import search, notes, chat, tree
 from app.models.api import HealthResponse, StatsResponse
 from app.services.vector_db import get_vector_db
 from app.services.embedding_service import get_embedding_service
@@ -44,6 +44,11 @@ async def lifespan(app: FastAPI):
             logger.info(f"✓ LLM providers available: {', '.join(available_llms)}")
         else:
             logger.warning("⚠ No LLM providers available - chat will not work")
+        
+        # Initialize tree structures
+        logger.info("Initializing tree structures...")
+        tree.initialize_trees()
+        logger.info("✓ Tree structures initialized")
         
     except Exception as e:
         logger.error(f"Failed to initialize services: {e}")
@@ -82,6 +87,7 @@ app.add_middleware(
 app.include_router(chat.router)
 app.include_router(search.router)
 app.include_router(notes.router)
+app.include_router(tree.router)
 
 
 @app.get("/")

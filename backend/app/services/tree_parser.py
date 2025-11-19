@@ -79,7 +79,7 @@ class TreeParser:
     
     def is_root_note(self, note: Note) -> bool:
         """
-        Check if a note is a root note (starts with "Notes - ")
+        Check if a note is a root note (filename starts with "Notes - ")
         
         Args:
             note: Note object
@@ -87,7 +87,9 @@ class TreeParser:
         Returns:
             True if note is a root node
         """
-        return note.title.startswith("Notes - ") or note.title.startswith("notes - ")
+        # Check the filename, not the title
+        filename = Path(note.file_path).name
+        return filename.startswith("Notes - ") or filename.startswith("notes - ")
     
     def find_note_by_link_text(self, link_text: str, base_category: str) -> Optional[Note]:
         """
