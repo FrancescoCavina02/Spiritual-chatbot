@@ -244,9 +244,9 @@ class VectorDBService:
                 "notes": 0
             }
         
-        # Sample metadata (get first 1000 for stats)
+        # Get ALL metadata (not just a sample) to ensure accurate stats
         sample = self.collection.get(
-            limit=min(1000, total_chunks),
+            limit=total_chunks,  # Get ALL chunks, not just 1000
             include=["metadatas"]
         )
         
