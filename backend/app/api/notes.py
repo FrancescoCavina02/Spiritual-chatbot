@@ -96,6 +96,41 @@ async def get_notes(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/categories/list", response_model=CategoriesResponse)
+async def get_categories():
+    """Get all categories with note counts"""
+    try:
+        notes = load_notes()
+        
+        # Count notes by category
+        category_counts = {}
+        for note in notes:
+            cat = note.get('category', 'Unknown')
+            category_counts[cat] = category_counts.get(cat, 0) + 1
+        
+        # Create category info list
+        categories = []
+        for cat_name, count in sorted(category_counts.items()):
+            categories.append(
+                CategoryInfo(
+                    id=cat_name.lower().replace(' ', '-'),
+                    name=cat_name,
+                    count=count,
+                    description=None
+                )
+            )
+        
+        return CategoriesResponse(
+            categories=categories,
+            total_notes=len(notes),
+            total_categories=len(categories)
+        )
+    
+    except Exception as e:
+        logger.error(f"Error getting categories: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/{note_id:path}", response_model=NoteResponse)
 async def get_note_by_id(note_id: str):
     """
@@ -180,40 +215,5 @@ async def get_note_by_id(note_id: str):
         raise
     except Exception as e:
         logger.error(f"Error getting note {note_id}: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/categories/list", response_model=CategoriesResponse)
-async def get_categories():
-    """Get all categories with note counts"""
-    try:
-        notes = load_notes()
-        
-        # Count notes by category
-        category_counts = {}
-        for note in notes:
-            cat = note.get('category', 'Unknown')
-            category_counts[cat] = category_counts.get(cat, 0) + 1
-        
-        # Create category info list
-        categories = []
-        for cat_name, count in sorted(category_counts.items()):
-            categories.append(
-                CategoryInfo(
-                    id=cat_name.lower().replace(' ', '-'),
-                    name=cat_name,
-                    count=count,
-                    description=None
-                )
-            )
-        
-        return CategoriesResponse(
-            categories=categories,
-            total_notes=len(notes),
-            total_categories=len(categories)
-        )
-    
-    except Exception as e:
-        logger.error(f"Error getting categories: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
