@@ -613,10 +613,15 @@ CMD ["npm", "start"]
 12. ✅ Implement citation parsing and linking from chat to notes
 13. ✅ Add conversation persistence with localStorage (ChatGPT-style)
 
-### 🎯 Next Priority (Complete Note Viewer)
+### 🎯 Next Priority (Note Viewer with Tree Structure)
 
-14. ⏭️ Build full note viewer with markdown rendering and bidirectional links
-15. ⏭️ Create category detail pages showing all notes in category
+14. 🔄 **IN PROGRESS:** Build tree structure parser for hierarchical notes
+    - Parse [[wiki links]] and build parent-child relationships
+    - Identify root notes, branches, and leaves
+    - Create tree navigation API endpoints
+    - Implement frontend note viewer with breadcrumbs
+    - Display child links and tree navigation
+15. ⏭️ Create category detail pages (flat vs hierarchical)
 16. ⏭️ Implement conversation history sidebar UI
 
 ### 📋 Remaining (Future Phases)

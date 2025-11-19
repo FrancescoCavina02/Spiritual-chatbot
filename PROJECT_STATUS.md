@@ -253,16 +253,50 @@ Quality: Excellent - matches project vision perfectly
 
 ## 🚧 In Progress
 
-### 14. Note Viewer & Category Detail Pages
-**Status:** Next priority  
-**What's Needed:**
-- Implement full note viewer with markdown rendering
-- Category detail pages showing all notes in category
-- Breadcrumb navigation (Category > Book > Note)
-- "Chat about this note" quick action button
-- Related notes sidebar based on embeddings
+### 14. Note Viewer & Tree Structure (IN PROGRESS)
+**Status:** Phase 1 - Backend Tree Parsing  
+**Goal:** Implement hierarchical note navigation with tree structure support
 
-**Estimated Time:** 2-3 days
+**Vault Structure Understanding:**
+- **Flat Categories** (4): Articles, Huberman Lab, Movies, Podcast
+  - Each .md file = standalone lesson/topic
+- **Hierarchical Categories** (8): Fiction, General, Mathematics, Philosophy, Science, Self-Help, Spiritual, YouTube Videos
+  - Each subfolder = book/video with tree structure
+  - Root note ("Notes - Book.md") contains [[Chapter]] links
+  - Recursive tree: Chapters → Sections → Subsections → Leaves
+
+**Implementation Plan:**
+
+**Phase 1: Backend Tree Parsing** (Current)
+- Parse [[wiki links]] from all notes
+- Identify root notes (files starting with "Notes - ")
+- Build parent-child relationships recursively
+- Mark leaves (notes with no [[links]])
+- Store tree metadata in chunks
+
+**Phase 2: Backend API** (Next)
+- GET /api/notes/tree/{category}/{book} - Full tree structure
+- GET /api/notes/navigation/{file_path} - Navigation context
+- Enhance existing endpoints with tree data
+
+**Phase 3: Frontend Note Viewer**
+- Breadcrumb navigation (Home > Spiritual > A New Earth > Chapter 2)
+- [[Wiki link]] parser and renderer
+- Display child links as clickable cards
+- Back/Previous/Next buttons
+
+**Phase 4: Category Pages**
+- Flat category: Simple note list
+- Hierarchical category: Book grid → Click book → Show root note
+
+**Phase 5: Polish** (Later)
+- Collapsible tree sidebar TOC
+- Visual tree diagram
+- "Related notes" suggestions
+
+**Test Case:** A New Earth (Spiritual category)
+
+**Estimated Time:** 1-2 weeks total
 
 ---
 
