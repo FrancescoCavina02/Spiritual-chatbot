@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatMessage, Citation, chatWithStreaming, parseSSEStream } from '@/lib/api';
+import {
+  getCurrentConversationId,
+  getConversation,
+  createConversation,
+  saveConversation,
+  type Conversation,
+} from '@/lib/storage';
 
 /**
  * useChat Custom Hook
  * 
  * Manages chat state and streaming responses from the backend.
+ * NOW WITH CONVERSATION PERSISTENCE! 🎉
  * 
  * React Learning - Custom Hooks:
  * - Custom hooks let us reuse stateful logic across components
@@ -13,16 +21,53 @@ import { ChatMessage, Citation, chatWithStreaming, parseSSEStream } from '@/lib/
  * - Return values/functions that components can use
  * 
  * This hook handles:
- * - Message history
+ * - Message history with localStorage persistence
  * - Sending messages
  * - Streaming responses token-by-token
  * - Citation management
+ * - Automatic conversation saving
  */
 export function useChat() {
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentCitations, setCurrentCitations] = useState<Citation[]>([]);
   const [streamingContent, setStreamingContent] = useState('');
+
+  /**
+   * Load conversation from localStorage on mount
+   */
+  useEffect(() => {
+    const currentId = getCurrentConversationId();
+    if (currentId) {
+      const conversation = getConversation(currentId);
+      if (conversation) {
+        setConversationId(conversation.id);
+        setMessages(conversation.messages);
+      }
+    }
+  }, []);
+
+  /**
+   * Save conversation whenever messages change
+   */
+  useEffect(() => {
+    if (conversationId && messages.length > 0) {
+      const conversation = getConversation(conversationId);
+      if (conversation) {
+        conversation.messages = messages;
+        // Auto-generate title from first user message
+        if (conversation.title === 'New Conversation' && messages.length > 0) {
+          const firstUserMsg = messages.find(m => m.role === 'user');
+          if (firstUserMsg) {
+            conversation.title = firstUserMsg.content.slice(0, 50) + 
+              (firstUserMsg.content.length > 50 ? '...' : '');
+          }
+        }
+        saveConversation(conversation);
+      }
+    }
+  }, [messages, conversationId]);
 
   /**
    * Send a message and stream the response
@@ -31,6 +76,14 @@ export function useChat() {
     content: string,
     provider: 'openai' | 'ollama' | 'anthropic' | 'google' = 'openai'
   ) => {
+    // Create new conversation if none exists
+    let currentConvId = conversationId;
+    if (!currentConvId) {
+      const newConv = createConversation(content);
+      currentConvId = newConv.id;
+      setConversationId(currentConvId);
+    }
+
     // Add user message
     const userMessage: ChatMessage = {
       role: 'user',
@@ -100,21 +153,38 @@ export function useChat() {
   };
 
   /**
-   * Clear conversation history
+   * Start a new conversation
    */
-  const clearMessages = () => {
+  const startNewConversation = () => {
+    const newConv = createConversation();
+    setConversationId(newConv.id);
     setMessages([]);
     setCurrentCitations([]);
     setStreamingContent('');
   };
 
+  /**
+   * Load an existing conversation
+   */
+  const loadConversation = (id: string) => {
+    const conversation = getConversation(id);
+    if (conversation) {
+      setConversationId(id);
+      setMessages(conversation.messages);
+      setCurrentCitations([]);
+      setStreamingContent('');
+    }
+  };
+
   return {
+    conversationId,
     messages,
     isLoading,
     currentCitations,
     streamingContent,
     sendMessage,
-    clearMessages,
+    startNewConversation,
+    loadConversation,
   };
 }
 
