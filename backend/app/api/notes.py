@@ -96,27 +96,83 @@ async def get_notes(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/{note_id}", response_model=NoteResponse)
+@router.get("/{note_id:path}", response_model=NoteResponse)
 async def get_note_by_id(note_id: str):
-    """Get a specific note by ID"""
+    """
+    Get a specific note by ID or file path
+    
+    Accepts either:
+    - Note ID (from notes.json)
+    - File path (e.g., "Spiritual/A New Earth/Note.md")
+    
+    Falls back to querying ChromaDB if notes.json doesn't exist
+    """
     try:
+        # Try loading from notes.json first
         notes = load_notes()
         
-        # Find note
-        note = next((n for n in notes if n['id'] == note_id), None)
+        if notes:
+            # Try to find by ID or file_path
+            note = next((n for n in notes if n['id'] == note_id or n['file_path'] == note_id), None)
+            
+            if note:
+                return NoteResponse(
+                    id=note['id'],
+                    title=note['title'],
+                    content=note['content'],
+                    category=note['category'],
+                    book=note.get('book'),
+                    file_path=note['file_path'],
+                    links=note.get('links', []),
+                    word_count=note['word_count'],
+                    related_notes=[]
+                )
         
-        if not note:
+        # Fallback: Query ChromaDB to reconstruct note
+        logger.info(f"Notes.json not found or note not in cache. Querying ChromaDB for: {note_id}")
+        
+        from app.services.vector_db import get_vector_db
+        vector_db = get_vector_db()
+        
+        # Query ChromaDB for chunks with matching file_path
+        results = vector_db.collection.get(
+            where={"file_path": note_id},
+            include=["documents", "metadatas"]
+        )
+        
+        if not results['ids'] or len(results['ids']) == 0:
             raise HTTPException(status_code=404, detail=f"Note not found: {note_id}")
         
+        # Reconstruct note from chunks
+        chunks_metadata = results['metadatas']
+        chunks_text = results['documents']
+        
+        # Get metadata from first chunk
+        first_metadata = chunks_metadata[0]
+        
+        # Combine all chunk texts
+        full_content = "\n\n".join(chunks_text)
+        
+        # Extract links from all chunks
+        all_links = set()
+        for metadata in chunks_metadata:
+            links_str = metadata.get('links', '[]')
+            try:
+                links = eval(links_str) if isinstance(links_str, str) else links_str
+                if isinstance(links, list):
+                    all_links.update(links)
+            except:
+                pass
+        
         return NoteResponse(
-            id=note['id'],
-            title=note['title'],
-            content=note['content'],
-            category=note['category'],
-            book=note.get('book'),
-            file_path=note['file_path'],
-            links=note.get('links', []),
-            word_count=note['word_count'],
+            id=first_metadata.get('note_id', note_id),
+            title=first_metadata.get('title', 'Untitled'),
+            content=full_content,
+            category=first_metadata.get('category', 'Unknown'),
+            book=first_metadata.get('book'),
+            file_path=note_id,
+            links=list(all_links),
+            word_count=len(full_content.split()),
             related_notes=[]
         )
     

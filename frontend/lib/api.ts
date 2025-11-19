@@ -78,9 +78,11 @@ export async function checkHealth(): Promise<{ status: string; message: string }
 
 /**
  * Get database statistics
+ * 
+ * Note: Backend has this at /stats (root level), not /api/stats
  */
 export async function getStats(): Promise<Stats> {
-  const response = await fetch(`${API_BASE_URL}/api/stats`);
+  const response = await fetch(`${API_BASE_URL}/stats`);
   if (!response.ok) throw new Error('Failed to fetch stats');
   return response.json();
 }
@@ -131,12 +133,14 @@ export async function getNoteById(noteId: string): Promise<Note> {
 }
 
 /**
- * Get list of all categories
+ * Get list of all categories with counts
  */
 export async function getCategories(): Promise<string[]> {
   const response = await fetch(`${API_BASE_URL}/api/notes/categories/list`);
   if (!response.ok) throw new Error('Failed to fetch categories');
-  return response.json();
+  const data = await response.json();
+  // Backend returns CategoriesResponse, extract just the category names
+  return data.categories ? data.categories.map((c: any) => c.name) : [];
 }
 
 /**
