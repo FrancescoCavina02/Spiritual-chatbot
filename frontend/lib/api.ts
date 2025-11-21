@@ -139,22 +139,31 @@ export async function getStats(): Promise<Stats> {
 /**
  * Semantic search across all notes
  */
-export async function searchNotes(
-  query: string,
-  topK: number = 10,
-  categoryFilter?: string
-): Promise<SearchResult[]> {
+export interface SearchParams {
+  query: string;
+  top_k?: number;
+  category?: string;
+}
+
+export async function searchNotes(params: SearchParams): Promise<SearchResult[]> {
+  const { query, top_k = 10, category } = params;
+  
   const response = await fetch(`${API_BASE_URL}/api/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       query,
-      top_k: topK,
-      category_filter: categoryFilter,
+      n_results: top_k,  // Backend expects n_results, not top_k
+      category_filter: category,
     }),
   });
   
-  if (!response.ok) throw new Error('Search failed');
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Search API error:', errorText);
+    throw new Error('Search failed');
+  }
+  
   const data = await response.json();
   return data.results || [];
 }
