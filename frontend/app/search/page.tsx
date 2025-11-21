@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { searchNotes, SearchResult } from '@/lib/api';
 import Link from 'next/link';
 
@@ -13,12 +14,14 @@ import Link from 'next/link';
  * - Relevance scoring
  * - Result snippets
  * - Direct links to notes
+ * - Search state persistence (URL params + sessionStorage)
  * 
  * React Learning:
  * - Async search with loading states
  * - Category filtering
  * - Result ranking and display
- * - Debouncing (future enhancement)
+ * - URL query parameters for shareable/bookmarkable searches
+ * - sessionStorage for persisting results across navigation
  */
 
 const CATEGORIES = [
@@ -37,7 +40,12 @@ const CATEGORIES = [
   'Articles',
 ];
 
+const STORAGE_KEY = 'search_results';
+
 export default function SearchPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -45,33 +53,103 @@ export default function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  /**
+   * Load search state from URL params and sessionStorage on mount
+   */
+  useEffect(() => {
+    const urlQuery = searchParams.get('q');
+    const urlCategory = searchParams.get('category');
     
-    if (!query.trim()) return;
+    if (urlQuery) {
+      setQuery(urlQuery);
+      setSelectedCategory(urlCategory || 'All Categories');
+      setHasSearched(true);
+      
+      // Load cached results from sessionStorage
+      try {
+        const cached = sessionStorage.getItem(STORAGE_KEY);
+        if (cached) {
+          const cachedData = JSON.parse(cached);
+          // Verify the cached results match current query
+          if (cachedData.query === urlQuery && cachedData.category === urlCategory) {
+            setResults(cachedData.results);
+          } else {
+            // Query changed, perform new search
+            performSearch(urlQuery, urlCategory || 'All Categories');
+          }
+        } else {
+          // No cache, perform search
+          performSearch(urlQuery, urlCategory || 'All Categories');
+        }
+      } catch (err) {
+        console.error('Error loading cached results:', err);
+        performSearch(urlQuery, urlCategory || 'All Categories');
+      }
+    }
+  }, [searchParams]);
 
+  /**
+   * Update URL params when search state changes
+   */
+  const updateURL = (newQuery: string, newCategory: string) => {
+    const params = new URLSearchParams();
+    if (newQuery) params.set('q', newQuery);
+    if (newCategory && newCategory !== 'All Categories') {
+      params.set('category', newCategory);
+    }
+    router.push(`/search?${params.toString()}`, { scroll: false });
+  };
+
+  /**
+   * Save results to sessionStorage
+   */
+  const cacheResults = (searchQuery: string, category: string, searchResults: SearchResult[]) => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        query: searchQuery,
+        category,
+        results: searchResults,
+        timestamp: Date.now(),
+      }));
+    } catch (err) {
+      console.error('Error caching results:', err);
+    }
+  };
+
+  /**
+   * Perform search (extracted for reuse)
+   */
+  const performSearch = async (searchQuery: string, category: string) => {
     try {
       setIsLoading(true);
       setError(null);
-      setHasSearched(true);
 
-      const categoryFilter = selectedCategory === 'All Categories' 
-        ? undefined 
-        : selectedCategory;
+      const categoryFilter = category === 'All Categories' ? undefined : category;
 
       const searchResults = await searchNotes({
-        query: query.trim(),
+        query: searchQuery.trim(),
         category: categoryFilter,
         top_k: 20,
       });
 
       setResults(searchResults);
+      cacheResults(searchQuery, category, searchResults);
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to perform search. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!query.trim()) return;
+
+    setHasSearched(true);
+    updateURL(query.trim(), selectedCategory);
+    await performSearch(query.trim(), selectedCategory);
   };
 
   /**
