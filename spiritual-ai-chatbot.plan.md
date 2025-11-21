@@ -1,7 +1,7 @@
 # Spiritual AI Guide Chatbot - Development Roadmap
 
 **Last Updated:** November 19, 2024  
-**Current Status:** 15/19 tasks complete (79%)  
+**Current Status:** 16/19 tasks complete (84%)  
 **Current Phase:** Phase 3 - Frontend Development (COMPLETE! 🎉)  
 **Phases 1-2:** ✅ Complete and tested  
 **Phase 3:** ✅ All core features working including tree navigation!
@@ -597,7 +597,7 @@ CMD ["npm", "start"]
 
 ## To-Dos: Completed In Order
 
-### ✅ Completed (15/19)
+### ✅ Completed (16/19)
 
 1. ✅ Initialize GitHub repo with folder structure, README, and documentation templates
 2. ✅ Build Obsidian vault parser to extract notes, metadata, and links
@@ -624,11 +624,18 @@ CMD ["npm", "start"]
     - ✅ New conversation, load conversation, delete conversation
     - ✅ Relative timestamps and active highlighting
     - ✅ Mobile-responsive slide-out drawer
+    - ✅ Collapsible sidebar on desktop
     - ✅ Full localStorage integration
+16. ✅ **Create category detail pages with filters and sorting**
+    - ✅ Real-time search bar for books/notes
+    - ✅ Sort dropdown (alphabetical, by chapter count)
+    - ✅ Result count and clear filters button
+    - ✅ Client-side filtering and sorting
+    - ✅ Works for both hierarchical and flat categories
 
-### 🎯 Next Priority (Enhanced Features)
+### 🎯 Next Priority (Search & Testing)
 
-16. ⏭️ Create category detail pages with filters and sorting
+17. ⏭️ Implement advanced search UI with semantic search
 
 ### 📋 Remaining (Future Phases)
 
