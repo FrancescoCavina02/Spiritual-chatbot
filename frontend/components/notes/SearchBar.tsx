@@ -41,7 +41,10 @@ export default function SearchBar({
 
     try {
       setIsSearching(true);
-      const searchResults = await searchNotes(query, 10);
+      const searchResults = await searchNotes({
+        query: query.trim(),
+        top_k: 10,
+      });
       setResults(searchResults);
       setShowResults(true);
     } catch (error) {
