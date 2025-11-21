@@ -127,13 +127,13 @@ export default function ConversationSidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-full bg-white/95 backdrop-blur-md shadow-2xl z-50 transition-all duration-300 ease-in-out flex flex-col ${
+        className={`fixed left-0 top-0 h-screen bg-white/95 backdrop-blur-md shadow-2xl z-40 transition-all duration-300 ease-in-out flex flex-col ${
           // Mobile: slide in/out
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } ${
           // Desktop: show/hide with width transition
           isCollapsed ? 'md:translate-x-0 md:w-16' : 'md:translate-x-0 md:w-64 lg:w-72'
-        } w-80 md:relative`}
+        } w-80 md:relative md:h-screen`}
       >
         {/* Header */}
         <div className={`p-4 border-b border-purple-200 bg-gradient-to-r from-purple-50 to-indigo-50 ${isCollapsed ? 'md:p-2' : ''}`}>

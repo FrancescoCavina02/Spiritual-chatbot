@@ -37,7 +37,7 @@ export default function ChatPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] max-w-full overflow-hidden">
+    <div className="flex h-screen max-w-full overflow-hidden bg-gradient-to-br from-purple-50 to-indigo-50">
       {/* Conversation History Sidebar */}
       <ConversationSidebar
         currentConversationId={conversationId}
@@ -48,9 +48,9 @@ export default function ChatPage() {
       />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="bg-white/70 backdrop-blur-sm p-4 md:p-6 shadow-lg border-b border-purple-200">
+      <div className="flex-1 flex flex-col min-w-0 h-screen">
+        {/* Fixed Header - Does not scroll */}
+        <div className="flex-shrink-0 bg-white/70 backdrop-blur-sm p-4 md:p-6 shadow-lg border-b border-purple-200 z-20">
           <div className="flex items-center gap-4">
             {/* Mobile Menu Button */}
             <button
@@ -74,10 +74,10 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Chat Content */}
-        <div className="flex flex-1 bg-white/50 backdrop-blur-sm overflow-hidden">
-          {/* Messages Section */}
-          <div className="flex-1 flex flex-col min-w-0">
+        {/* Scrollable Chat Content */}
+        <div className="flex flex-1 bg-white/50 backdrop-blur-sm overflow-hidden min-h-0">
+          {/* Messages Section - This scrolls */}
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
             <MessageList 
               messages={messages} 
               isLoading={isLoading} 
@@ -86,9 +86,9 @@ export default function ChatPage() {
             <MessageInput onSendMessage={sendMessage} disabled={isLoading} />
           </div>
 
-          {/* Citations Sidebar (Desktop only) */}
+          {/* Citations Sidebar (Desktop only) - This scrolls independently */}
           {currentCitations.length > 0 && (
-            <div className="hidden lg:block w-80 border-l border-purple-200">
+            <div className="hidden lg:block w-80 border-l border-purple-200 overflow-y-auto">
               <CitationPanel citations={currentCitations} />
             </div>
           )}
@@ -96,7 +96,7 @@ export default function ChatPage() {
 
         {/* Mobile Citations (Bottom sheet on mobile) */}
         {currentCitations.length > 0 && (
-          <div className="lg:hidden border-t border-purple-200 bg-white max-h-48 overflow-y-auto">
+          <div className="lg:hidden border-t border-purple-200 bg-white max-h-48 overflow-y-auto flex-shrink-0">
             <CitationPanel citations={currentCitations} />
           </div>
         )}
