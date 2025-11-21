@@ -8,6 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from datetime import datetime
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.api import search, notes, chat, tree
 from app.models.api import HealthResponse, StatsResponse
