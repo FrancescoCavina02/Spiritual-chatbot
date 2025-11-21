@@ -16,6 +16,7 @@ export default function Navigation() {
   const links = [
     { href: '/', label: 'Home' },
     { href: '/chat', label: 'Chat' },
+    { href: '/search', label: 'Search' },
     { href: '/notes', label: 'Notes' },
     { href: '/about', label: 'About' },
   ];
