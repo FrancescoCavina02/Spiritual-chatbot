@@ -193,10 +193,11 @@ async def get_note_by_id(note_id: str):
         for metadata in chunks_metadata:
             links_str = metadata.get('links', '[]')
             try:
-                links = eval(links_str) if isinstance(links_str, str) else links_str
+                links = json.loads(links_str) if isinstance(links_str, str) else links_str
                 if isinstance(links, list):
                     all_links.update(links)
-            except:
+            except (json.JSONDecodeError, TypeError) as e:
+                logger.warning(f"Failed to parse links from metadata: {e}")
                 pass
         
         return NoteResponse(

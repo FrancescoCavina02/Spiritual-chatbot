@@ -11,10 +11,17 @@
 *Critical bugs that break core functionality or prevent users from using the app*
 
 ### Open
-- [ ] **[BUG-001]** - *Add first critical bug here*
+- None currently
 
 ### Fixed
-- None yet
+- [x] **[BUG-001]** - Backend not loading .env file (OpenAI API key missing)
+  - **Priority:** P0 (Critical)
+  - **Component:** Backend
+  - **Discovered:** Nov 21, 2024 (during testing)
+  - **Issue:** Backend wasn't loading environment variables from .env, causing chat to fail with "Connection refused" when calling OpenAI API
+  - **Fix:** Added `load_dotenv()` to backend/app/main.py
+  - **Fixed By:** Commit f37c15c
+  - **Verified:** ✅ Chat now works correctly
 
 ---
 

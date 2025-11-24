@@ -1,10 +1,12 @@
 # Spiritual AI Guide Chatbot - Development Roadmap
 
-**Last Updated:** November 19, 2024  
+**Last Updated:** November 22, 2024  
 **Current Status:** 17/19 tasks complete (89%)  
-**Current Phase:** Phase 3 - Frontend Development (COMPLETE! 🎉)  
-**Phases 1-2:** ✅ Complete and tested  
+**Current Phase:** Phase 3 - Frontend Development (COMPLETE! 🎉) → Phase 5 - Testing & Deployment  
+**Phases 1-2:** ✅ Complete and tested
 **Phase 3:** ✅ All core features working including tree navigation!
+**Phase 4:** ✅ Advanced features complete (conversation history, search, filters)
+**Phase 5:** 🎯 **CURRENT** - Testing & Deployment
 
 ---
 
@@ -642,32 +644,126 @@ CMD ["npm", "start"]
 
 ### 🎯 Next Priority (Testing & Deployment)
 
-18. ⏭️ Write comprehensive test suite
-19. ⏭️ Complete deployment and documentation
+**Status:** Ready to begin - 2 tasks remaining for MVP
 
-### 📋 Remaining (Future Phases)
+18. ⏭️ **Testing Suite** - Unit and integration tests for backend and frontend
+    - Backend: Unit tests for services, integration tests for API endpoints
+    - Frontend: Component tests, E2E tests for critical flows
+    - Test coverage goal: 70%+ for critical paths
 
-14. ⏭️ Implement semantic search UI with filters and explanations
-15. ⏭️ Write unit and integration tests for backend and frontend
-16. ⏭️ Conduct model comparison with evaluation metrics and documentation
-17. ⏭️ Create Dockerfiles and docker-compose for full application
-18. ⏭️ Deploy frontend to Vercel and backend to Railway/Render
-19. ⏭️ Complete academic documentation with architecture diagrams and evaluation results
+19. ⏭️ **Deployment & Documentation** - Complete MVP deployment
+    - Docker setup: Backend Dockerfile, Frontend Dockerfile, docker-compose.yml
+    - Cloud deployment: Frontend (Vercel), Backend (Railway/Render)
+    - Documentation: Update README, architecture diagrams, deployment guide
+    - Environment setup: Production .env templates, deployment scripts
+
+### ✅ Recently Completed (November 19-22, 2024)
+
+- ✅ **Error Handling Improvements** - User-friendly network error messages
+- ✅ **Manual Testing** - 7/8 test flows completed (Flow 8 edge cases skipped)
+- ✅ **Critical Bug Fixes** - Backend .env loading, error handling
 
 ---
 
-## Next Immediate Steps (Ready for Frontend Development)
+## 🎯 Next Immediate Steps (Testing & Deployment Phase)
 
-1. **Initialize Next.js 14 project** in `/Users/francescocavina/Documents/Coding/Projects/NLP Chatbot/frontend/`
-2. **Set up folder structure** following Phase 3.1 specifications
-3. **Build chat interface** first (highest priority, Phase 3.2)
-4. **Connect to backend API** at http://localhost:8000
-5. **Learn JavaScript/React** concepts along the way (Phase 3.4)
-6. **Maintain clean Git commits** with conventional commit format
+### Priority 1: Testing Suite (Task 18)
 
-**Backend is complete and ready to serve the frontend!**
+**Backend Testing:**
+1. Set up pytest testing framework
+2. Write unit tests for:
+   - `obsidian_parser.py` - Edge cases, malformed markdown
+   - `embedding_service.py` - Embedding generation, batch processing
+   - `vector_db.py` - Query operations, metadata filtering
+   - `rag_engine.py` - Context retrieval, re-ranking
+   - `llm_service.py` - Provider switching, error handling
+3. Write integration tests for:
+   - `/api/chat/stream` - End-to-end RAG pipeline
+   - `/api/search` - Semantic search with filters
+   - `/api/notes` - Note retrieval and filtering
+   - `/api/tree/*` - Tree navigation endpoints
+
+**Frontend Testing:**
+1. Set up Jest + React Testing Library
+2. Write component tests for:
+   - Chat interface (message sending, streaming)
+   - Note viewer (navigation, wiki links)
+   - Search page (query handling, results display)
+   - Conversation sidebar (CRUD operations)
+3. Write E2E tests with Playwright:
+   - Complete chat flow (send message → get response → click citation)
+   - Note navigation (browse → select → navigate tree)
+   - Search flow (query → results → click note)
+
+**Test Coverage Goal:** 70%+ for critical paths
+
+### Priority 2: Deployment & Documentation (Task 19)
+
+**Docker Setup:**
+1. Complete backend Dockerfile (optimize for production)
+2. Complete frontend Dockerfile (multi-stage build)
+3. Create docker-compose.yml with:
+   - Backend service
+   - Frontend service
+   - Volume mounts for ChromaDB
+   - Environment variable management
+4. Test locally with Docker Compose
+
+**Cloud Deployment:**
+1. **Frontend (Vercel):**
+   - Connect GitHub repository
+   - Configure build settings
+   - Set environment variables (API_BASE_URL)
+   - Deploy and verify
+
+2. **Backend (Railway/Render):**
+   - Connect GitHub repository
+   - Configure Python runtime
+   - Set environment variables (OPENAI_API_KEY, etc.)
+   - Configure persistent storage for ChromaDB
+   - Deploy and verify health endpoint
+
+**Documentation:**
+1. Update README.md with:
+   - Live demo link
+   - Deployment instructions
+   - Environment setup guide
+   - Troubleshooting section
+
+2. Complete architecture documentation:
+   - System architecture diagram
+   - Data flow diagrams
+   - API documentation
+   - Deployment architecture
+
+3. Create deployment guide:
+   - Docker setup instructions
+   - Cloud deployment steps
+   - Environment variable reference
+   - Monitoring and logging setup
+
+**Estimated Timeline:** 1-2 weeks for both tasks
+
+---
+
+## ✅ Current Project State
+
+**Backend:** ✅ Complete and operational
 - API running on http://127.0.0.1:8000
 - OpenAI GPT-4 Turbo tested and working (~15s response time)
 - 1,772 chunks indexed from 1,649 notes
 - All endpoints operational and documented
+- Error handling improved with user-friendly messages
+
+**Frontend:** ✅ Complete and operational
+- Next.js 14 app fully functional
+- All core features working (chat, notes, search, navigation)
+- Conversation persistence implemented
+- Error handling with graceful degradation
+- Responsive design across devices
+
+**Testing:** 🎯 In Progress
+- Manual testing: 7/8 flows completed
+- Automated testing: To be implemented
+- Edge case testing: Deferred to post-MVP
 

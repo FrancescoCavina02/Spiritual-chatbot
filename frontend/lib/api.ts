@@ -145,49 +145,82 @@ export interface SearchParams {
   category?: string;
 }
 
+/**
+ * Helper to create user-friendly error messages
+ */
+function createErrorMessage(error: unknown, defaultMessage: string): string {
+  if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+    return 'Unable to connect to the server. Please ensure the backend is running at http://localhost:8000';
+  }
+  if (error instanceof Error) {
+    return error.message || defaultMessage;
+  }
+  return defaultMessage;
+}
+
 export async function searchNotes(params: SearchParams): Promise<SearchResult[]> {
   const { query, top_k = 10, category } = params;
   
-  const response = await fetch(`${API_BASE_URL}/api/search`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      query,
-      n_results: top_k,  // Backend expects n_results, not top_k
-      category_filter: category,
-    }),
-  });
-  
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Search API error:', errorText);
-    throw new Error('Search failed');
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        n_results: top_k,  // Backend expects n_results, not top_k
+        category_filter: category,
+      }),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Search API error:', errorText);
+      throw new Error('Search failed. Please try again.');
+    }
+    
+    const data = await response.json();
+    return data.results || [];
+  } catch (error) {
+    const message = createErrorMessage(error, 'Search failed. Please try again.');
+    throw new Error(message);
   }
-  
-  const data = await response.json();
-  return data.results || [];
 }
 
 /**
  * Get all notes with optional filtering
  */
 export async function getNotes(category?: string): Promise<Note[]> {
-  const url = category 
-    ? `${API_BASE_URL}/api/notes?category=${encodeURIComponent(category)}`
-    : `${API_BASE_URL}/api/notes`;
-  
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Failed to fetch notes');
-  return response.json();
+  try {
+    const url = category 
+      ? `${API_BASE_URL}/api/notes?category=${encodeURIComponent(category)}`
+      : `${API_BASE_URL}/api/notes`;
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch notes');
+    return response.json();
+  } catch (error) {
+    const message = createErrorMessage(error, 'Unable to load notes. Please check if the backend is running.');
+    throw new Error(message);
+  }
 }
 
 /**
  * Get a specific note by ID
  */
 export async function getNoteById(noteId: string): Promise<Note> {
-  const response = await fetch(`${API_BASE_URL}/api/notes/${encodeURIComponent(noteId)}`);
-  if (!response.ok) throw new Error('Failed to fetch note');
-  return response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/notes/${encodeURIComponent(noteId)}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Note not found');
+      }
+      throw new Error('Failed to fetch note');
+    }
+    return response.json();
+  } catch (error) {
+    const message = createErrorMessage(error, 'Unable to load note. Please check if the backend is running.');
+    throw new Error(message);
+  }
 }
 
 /**
@@ -212,16 +245,28 @@ export async function getCategories(): Promise<string[]> {
 export async function chatWithStreaming(
   request: ChatRequest
 ): Promise<ReadableStream<Uint8Array>> {
-  const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(request),
-  });
-  
-  if (!response.ok) throw new Error('Chat request failed');
-  if (!response.body) throw new Error('No response body');
-  
-  return response.body;
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('Chat API error:', errorText);
+      throw new Error('Chat request failed. Please try again.');
+    }
+    
+    if (!response.body) {
+      throw new Error('No response body received from server.');
+    }
+    
+    return response.body;
+  } catch (error) {
+    const message = createErrorMessage(error, 'Unable to connect to chat service. Please ensure the backend is running.');
+    throw new Error(message);
+  }
 }
 
 /**
@@ -323,31 +368,46 @@ export async function chat(request: ChatRequest): Promise<{
  * Get all books grouped by category
  */
 export async function getAllBooks(): Promise<Record<string, BookMetadata[]>> {
-  const res = await fetch(`${API_BASE_URL}/api/tree/books`);
-  if (!res.ok) throw new Error('Failed to fetch books');
-  const data = await res.json();
-  return data.categories;
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/tree/books`);
+    if (!res.ok) throw new Error('Failed to fetch books');
+    const data = await res.json();
+    return data.categories;
+  } catch (error) {
+    const message = createErrorMessage(error, 'Unable to load books. Please check if the backend is running.');
+    throw new Error(message);
+  }
 }
 
 /**
  * Get full tree structure for a specific book
  */
 export async function getBookTree(category: string, bookName: string): Promise<BookTreeResponse> {
-  const res = await fetch(
-    `${API_BASE_URL}/api/tree/${encodeURIComponent(category)}/${encodeURIComponent(bookName)}`
-  );
-  if (!res.ok) throw new Error('Failed to fetch book tree');
-  return res.json();
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/tree/${encodeURIComponent(category)}/${encodeURIComponent(bookName)}`
+    );
+    if (!res.ok) throw new Error('Failed to fetch book tree');
+    return res.json();
+  } catch (error) {
+    const message = createErrorMessage(error, 'Unable to load book structure. Please check if the backend is running.');
+    throw new Error(message);
+  }
 }
 
 /**
  * Get navigation context for a specific note
  */
 export async function getNoteNavigation(filePath: string): Promise<NavigationContext> {
-  const res = await fetch(
-    `${API_BASE_URL}/api/tree/navigation/${encodeURIComponent(filePath)}`
-  );
-  if (!res.ok) throw new Error('Failed to fetch navigation context');
-  return res.json();
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/tree/navigation/${encodeURIComponent(filePath)}`
+    );
+    if (!res.ok) throw new Error('Failed to fetch navigation context');
+    return res.json();
+  } catch (error) {
+    const message = createErrorMessage(error, 'Unable to load navigation. Please check if the backend is running.');
+    throw new Error(message);
+  }
 }
 

@@ -137,10 +137,15 @@ export function useChat() {
     } catch (error) {
       console.error('Error in chat:', error);
       
+      // Extract user-friendly error message
+      const errorMessageText = error instanceof Error 
+        ? error.message 
+        : 'Sorry, I encountered an error. Please try again.';
+      
       // Add error message
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: '❌ Sorry, I encountered an error. Please ensure the backend is running at http://localhost:8000',
+        content: `❌ ${errorMessageText}`,
         timestamp: new Date().toISOString(),
       };
       

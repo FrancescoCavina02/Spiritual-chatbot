@@ -20,7 +20,7 @@ export default function Home() {
           Welcome to Your
           <br />
           Spiritual AI Guide
-        </h1>
+          </h1>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
           An intelligent companion drawing wisdom from 1,649 notes across spirituality, 
           psychology, self-help, and philosophy to guide you through life's challenges.
@@ -100,7 +100,7 @@ export default function Home() {
               <span
                 key={tech}
                 className="px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-md"
-              >
+          >
                 {tech}
               </span>
             )

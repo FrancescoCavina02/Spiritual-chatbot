@@ -17,7 +17,7 @@ export default function RootLayout({
       <body className="antialiased bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen">
         <Navigation />
         <main className="container mx-auto px-4 py-8">
-          {children}
+        {children}
         </main>
       </body>
     </html>

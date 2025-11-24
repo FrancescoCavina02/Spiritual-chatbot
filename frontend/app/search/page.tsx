@@ -136,7 +136,10 @@ export default function SearchPage() {
       cacheResults(searchQuery, category, searchResults);
     } catch (err) {
       console.error('Search error:', err);
-      setError('Failed to perform search. Please try again.');
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Failed to perform search. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
