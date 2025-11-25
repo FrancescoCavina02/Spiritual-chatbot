@@ -1,6 +1,15 @@
-# Spiritual AI Guide Chatbot
+# 🧘 Spiritual AI Guide Chatbot
+
+> An intelligent RAG-powered chatbot that provides spiritual and psychological guidance based on a curated collection of books on spirituality, psychology, self-help, and philosophy.
+
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://your-demo-url.vercel.app)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
+[![Next.js](https://img.shields.io/badge/next.js-16.0-black)](https://nextjs.org/)
 
 An intelligent chatbot powered by RAG (Retrieval-Augmented Generation) that provides spiritual and psychological guidance based on personal knowledge accumulated from books on spirituality, psychology, self-help, and philosophy.
+
+**🔗 [Live Demo](https://your-demo-url.vercel.app)** | **📚 [Deployment Guide](DEPLOYMENT.md)** | **📖 [API Docs](http://localhost:8000/docs)**
 
 ## 🎯 Project Overview
 
@@ -148,15 +157,24 @@ Create `.env` files in backend and frontend directories:
 
 **backend/.env:**
 ```env
-OPENAI_API_KEY=your_key_here  # Optional, for OpenAI models
-ANTHROPIC_API_KEY=your_key_here  # Optional, for Claude
+# Copy from backend/env.example
+OPENAI_API_KEY=sk-your-key-here
 OBSIDIAN_VAULT_PATH=/path/to/obsidian/vault
+LLM_PROVIDER=openai
+# ... see backend/env.example for all options
 ```
 
 **frontend/.env.local:**
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+# Copy from frontend/env.example
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_APP_NAME=Spiritual AI Guide
 ```
+
+**📝 Full environment configuration examples:**
+- Backend: [`backend/env.example`](backend/env.example)
+- Frontend: [`frontend/env.example`](frontend/env.example)
+- Docker: [`docker-compose.env.example`](docker-compose.env.example)
 
 ### Running the Application
 
@@ -236,10 +254,11 @@ Detailed evaluation methodology in [`docs/evaluation.md`](docs/evaluation.md).
 
 ## 📖 Documentation
 
-- [**Architecture Overview**](docs/architecture.md) - System design and technical decisions
-- [**RAG Pipeline Details**](docs/rag-pipeline.md) - Embedding, retrieval, and generation
-- [**Model Evaluation**](docs/evaluation.md) - Performance comparison and metrics
-- [**Deployment Guide**](docs/deployment.md) - Docker, cloud deployment, scaling
+- [**🚀 Deployment Guide**](DEPLOYMENT.md) - **START HERE** for deploying to production
+- [**📋 Project Status**](PROJECT_STATUS.md) - Current implementation status and roadmap
+- [**✅ Testing Checklist**](TESTING_CHECKLIST.md) - Manual testing procedures
+- [**📝 Issues & Improvements**](ISSUES.md) - Known issues and planned enhancements
+- [**🎯 Project Plan**](spiritual-ai-chatbot.plan.md) - Original project planning document
 
 ## 🧑‍💻 Development
 
@@ -273,17 +292,37 @@ npm run type-check
 
 ## 🚢 Deployment
 
-### Using Docker Compose
+### Quick Start with Docker Compose
 
 ```bash
-docker-compose up -d
+# 1. Copy environment template
+cp docker-compose.env.example .env
+
+# 2. Edit .env with your credentials
+nano .env
+
+# 3. Build and run
+docker-compose up --build -d
+
+# 4. Verify deployment
+curl http://localhost:8000/health
 ```
 
-### Cloud Deployment
+Access the app at `http://localhost:3000`
 
-- **Frontend**: Vercel (automatic deployment from GitHub)
-- **Backend**: Railway or Render (with persistent volumes)
-- See [`docs/deployment.md`](docs/deployment.md) for detailed instructions
+### Cloud Deployment (Production)
+
+**Frontend (Vercel):**
+- Automatic deployment from GitHub
+- Zero-config Next.js deployment
+- Free tier available
+
+**Backend (Railway/Render):**
+- Docker-based deployment
+- Persistent storage for embeddings
+- Free tier available
+
+**📚 For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)**
 
 ## 🎓 Academic Context
 
@@ -307,9 +346,10 @@ MIT License - See [LICENSE](LICENSE) for details
 
 ## 📧 Contact
 
-Francesco Cavina - francesco.cavina@example.com
+Francesco Cavina
 
-Project Link: [https://github.com/yourusername/spiritual-ai-guide](https://github.com/yourusername/spiritual-ai-guide)
+- GitHub: [@FrancescoCavina02](https://github.com/FrancescoCavina02)
+- Project Link: [https://github.com/FrancescoCavina02/Spiritual-chatbot](https://github.com/FrancescoCavina02/Spiritual-chatbot)
 
 ---
 

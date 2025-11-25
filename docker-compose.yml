@@ -1,55 +1,104 @@
 version: '3.8'
 
 services:
+  # ======================================
+  # Backend Service
+  # ======================================
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    container_name: spiritual-ai-backend
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=production
-      - OBSIDIAN_VAULT_PATH=/data/raw
-      - CHROMADB_PATH=/data/embeddings
-      - OLLAMA_BASE_URL=http://ollama:11434
+      # Obsidian Vault (mount as volume below)
+      - OBSIDIAN_VAULT_PATH=/vault
+      
+      # LLM Configuration
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      
+      # Model Configuration
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo-preview}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.1:8b}
+      
+      # Embedding Model
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      
+      # Vector Database
+      - CHROMA_PERSIST_DIRECTORY=/app/data/embeddings
+      - CHROMA_COLLECTION_NAME=${CHROMA_COLLECTION_NAME:-spiritual_notes}
+      
+      # RAG Configuration
+      - RAG_TOP_K=${RAG_TOP_K:-5}
+      - RAG_MIN_SCORE=${RAG_MIN_SCORE:-0.3}
+      
+      # CORS
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000
+      
+      # Server Configuration
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    
     volumes:
-      - ./data:/data
-      - chromadb_data:/app/data/embeddings
-    depends_on:
-      - ollama
-    networks:
-      - app_network
+      # Mount your Obsidian vault (READ ONLY for safety)
+      - ${OBSIDIAN_VAULT_PATH}:/vault:ro
+      
+      # Persistent storage for ChromaDB embeddings
+      - chroma-data:/app/data/embeddings
+    
     restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
+  # ======================================
+  # Frontend Service
+  # ======================================
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: spiritual-ai-frontend
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000
+      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
+      - NEXT_PUBLIC_APP_NAME=Spiritual AI Guide
+    
     depends_on:
       - backend
-    networks:
-      - app_network
+    
     restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    networks:
-      - app_network
-    restart: unless-stopped
-
+# ======================================
+# Volumes
+# ======================================
 volumes:
-  chromadb_data:
-  ollama_data:
+  chroma-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./backend/data/embeddings
 
+# ======================================
+# Networks (optional, uses default)
+# ======================================
 networks:
-  app_network:
-    driver: bridge
-
+  default:
+    name: spiritual-ai-network
