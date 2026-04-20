@@ -5,9 +5,7 @@
  * It provides typed functions for each endpoint.
  */
 
-const API_BASE_URL = 
-  process.env.NEXT_PUBLIC_API_URL || 
-  'https://spiritual-chatbot-api.onrender.com'; // Soft fallback for production preview
+const API_BASE_URL = 'https://spiritual-chatbot-api.onrender.com';
 
 /**
  * Type Definitions

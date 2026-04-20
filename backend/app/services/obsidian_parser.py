@@ -27,9 +27,9 @@ class ObsidianParser:
         """
         self.vault_path = Path(vault_path)
         if not self.vault_path.exists():
-            raise ValueError(f"Vault path does not exist: {vault_path}")
-        
-        logger.info(f"Initialized ObsidianParser for vault: {vault_path}")
+            logger.warning(f"Vault path does not exist: {vault_path}. Notes navigation will be unavailable.")
+        else:
+            logger.info(f"Initialized ObsidianParser for vault: {vault_path}")
     
     def parse_all_notes(self, exclude_patterns: Optional[List[str]] = None) -> List[Note]:
         """

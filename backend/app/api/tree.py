@@ -8,9 +8,11 @@ from typing import Dict, Any, List, Optional
 import logging
 from pathlib import Path
 
+import os
 from app.services.tree_parser import TreeParser
 from app.services.obsidian_parser import parse_vault
 from app.models.note import Note
+from app.services.vector_db import get_vector_db
 
 router = APIRouter(prefix="/api/tree", tags=["tree"])
 logger = logging.getLogger(__name__)
@@ -20,36 +22,70 @@ _trees_cache: Dict[str, Any] = {}
 _all_notes: List[Note] = []
 _parser: Optional[TreeParser] = None
 
-# Vault path
-VAULT_PATH = "/Users/francescocavina/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Books"
+# Safe path lookup
+VAULT_PATH = os.getenv("VAULT_PATH", "./data/raw")
 
 
 def initialize_trees():
     """
     Initialize tree structures on server startup
-    Parse all notes and build tree structures
+    Parse all notes and build tree structures.
+    If VAULT_PATH is invalid, falls back to using DB metadata.
     """
     global _trees_cache, _all_notes, _parser
     
     logger.info("Initializing tree structures...")
-    
-    # Parse vault
-    notes, stats = parse_vault(VAULT_PATH)
-    _all_notes = notes
     _parser = TreeParser()
+    path = Path(VAULT_PATH)
     
+    if path.exists() and any(path.iterdir()):
+        logger.info(f"Building trees from vault: {VAULT_PATH}")
+        try:
+            notes, stats = parse_vault(VAULT_PATH)
+            _all_notes = notes
+        except Exception as e:
+            logger.error(f"Failed to parse vault at {VAULT_PATH}: {e}")
+            _all_notes = []
+    else:
+        logger.warning(f"Vault not found at {VAULT_PATH}. Switching to Database Mode.")
+        try:
+            vector_db = get_vector_db()
+            db_notes_meta = vector_db.get_all_notes_metadata()
+            
+            # Convert basic metadata back to Note objects (without content, but with hierarchy info)
+            _all_notes = [
+                Note(
+                    id=m["id"],
+                    title=m["title"],
+                    category=m["category"],
+                    book=m["book"],
+                    file_path=m["file_path"],
+                    content="", # content is only loaded when specific note is requested
+                    links=[]
+                )
+                for m in db_notes_meta
+            ]
+            logger.info(f"Loaded {len(_all_notes)} note structures from database")
+        except Exception as e:
+            logger.error(f"Failed to load notes from database: {e}")
+            _all_notes = []
+            
+    if not _all_notes:
+        logger.error("No notes available to build trees.")
+        return
+        
     # Find all root notes and build trees
-    root_notes = _parser.find_root_notes(notes)
+    root_notes = _parser.find_root_notes(_all_notes)
     logger.info(f"Found {len(root_notes)} root notes")
     
     for root_note in root_notes:
         try:
             logger.info(f"Building tree for: {root_note.title} ({root_note.category})")
-            tree = _parser.build_tree(root_note, notes)
+            tree = _parser.build_tree(root_note, _all_notes)
             
             # Cache using category/book as key
             category = root_note.category
-            # Extract book name from title (remove "Notes - " prefix)
+            # Extract book name from title
             book_name = root_note.title.replace("Notes - ", "").replace("notes - ", "")
             
             cache_key = f"{category}/{book_name}"
@@ -57,7 +93,7 @@ def initialize_trees():
             logger.info(f"  ✓ Cached tree: {cache_key} ({len(tree.children)} chapters)")
         
         except Exception as e:
-            logger.error(f"Error building tree for {root_note.title}: {e}", exc_info=True)
+            logger.error(f"Error building tree for {root_note.title}: {e}")
     
     logger.info(f"✓ Initialized {len(_trees_cache)} tree structures")
 

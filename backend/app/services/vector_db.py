@@ -18,24 +18,14 @@ logger = logging.getLogger(__name__)
 class VectorDBService:
     """Service for managing ChromaDB vector database"""
     
-    def __init__(
-        self,
-        persist_directory: Optional[str] = None,
-        collection_name: str = "spiritual_notes"
-    ):
-        """
-        Initialize vector database service
-        
-        Args:
-            persist_directory: Directory to persist ChromaDB data. 
-                              If None, reads from CHROMA_PERSIST_DIRECTORY env var or defaults to "./data/embeddings".
             collection_name: Name of the collection to use
         """
         # Priority: constructor arg -> env var -> safe local default
         if persist_directory is None:
             persist_directory = os.getenv("CHROMA_PERSIST_DIRECTORY", "data/embeddings")
             
-        self.persist_directory = Path(persist_directory)
+        # Resolve to absolute path to avoid ambiguity in containers
+        self.persist_directory = Path(persist_directory).resolve()
         self.persist_directory.mkdir(parents=True, exist_ok=True)
         
         self.collection_name = collection_name
@@ -52,11 +42,40 @@ class VectorDBService:
                 )
             )
             
+            # Diagnostic: Log all existing collections to identify data presence
+            try:
+                collections = self.client.list_collections()
+                if not collections:
+                    logger.warning("No collections found in the ChromaDB persistent storage.")
+                else:
+                    logger.info(f"Found {len(collections)} collections in storage:")
+                    for c in collections:
+                        try:
+                            count = self.client.get_collection(c.name).count()
+                            logger.info(f"  - {c.name}: {count} chunks")
+                        except Exception:
+                            logger.info(f"  - {c.name}: [Unable to count]")
+            except Exception as diag_err:
+                logger.error(f"Failed to run Chroma diagnostics: {diag_err}")
+
             # Get or create collection
-            self.collection = self.client.get_or_create_collection(
-                name=self.collection_name,
-                metadata={"hnsw:space": "cosine"}
-            )
+            try:
+                self.collection = self.client.get_collection(name=self.collection_name)
+            except Exception:
+                # If spiritual_notes doesn't exist, check for common variants or create
+                logger.warning(f"Collection '{self.collection_name}' not found. Checking variants...")
+                available = [c.name for c in self.client.list_collections()]
+                if available:
+                    # Use the first available if it looks like the right data
+                    self.collection_name = available[0]
+                    self.collection = self.client.get_collection(name=self.collection_name)
+                    logger.info(f"Using alternative collection: {self.collection_name}")
+                else:
+                    logger.info(f"Creating new collection: {self.collection_name}")
+                    self.collection = self.client.create_collection(
+                        name=self.collection_name,
+                        metadata={"hnsw:space": "cosine"}
+                    )
             
             logger.info(f"ChromaDB initialized. Collection: {self.collection_name}")
             logger.info(f"Current collection size: {self.collection.count()} chunks")
@@ -281,6 +300,39 @@ class VectorDBService:
             "books": dict(sorted(books.items())),
             "notes_sampled": len(note_ids)
         }
+    
+    def get_all_notes_metadata(self) -> List[Dict[str, Any]]:
+        """
+        Get metadata for all unique notes in the collection.
+        Used to rebuild navigation trees when raw files are missing.
+        
+        Returns:
+            List of unique note metadata dicts
+        """
+        total = self.collection.count()
+        if total == 0:
+            return []
+            
+        # Get all chunks (metadata only)
+        results = self.collection.get(include=["metadatas"])
+        
+        # Filter for unique note IDs
+        seen_notes = set()
+        unique_notes = []
+        
+        for metadata in results['metadatas']:
+            note_id = metadata.get('note_id')
+            if note_id and note_id not in seen_notes:
+                seen_notes.add(note_id)
+                unique_notes.append({
+                    "id": note_id,
+                    "title": metadata.get('title'),
+                    "category": metadata.get('category'),
+                    "book": metadata.get('book'),
+                    "file_path": metadata.get('file_path'),
+                })
+                
+        return unique_notes
     
     def reset_collection(self):
         """Reset (delete) the collection"""
