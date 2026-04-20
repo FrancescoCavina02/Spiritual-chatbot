@@ -62,35 +62,40 @@ Note: Render restricts Free tier instances to 512MB RAM, which your CPU-only PyT
 
 ---
 
-## Part 2: Deploy Frontend to Vercel
+## Part 2: Deploy Frontend to Netlify
 
-### Step 1: Connect GitHub to Vercel
+Netlify is the absolute easiest platform for deploying Next.js applications. It requires zero configuration and has a much simpler environment variable interface than Vercel.
 
-1. Go to [vercel.com](https://vercel.com) → New Project
-2. Import your GitHub repository
-3. Set **Root Directory** to `frontend/`
-4. Vercel will auto-detect Next.js 14
+### Step 1: Connect GitHub to Netlify
+
+1. Go to [netlify.com](https://netlify.com) and sign up with GitHub.
+2. Click **Add new site** → **Import an existing project**.
+3. Authorize GitHub and select your repository: `FrancescoCavina02/Spiritual-chatbot`.
+4. Netlify will auto-detect Next.js 14. 
+5. Set the **Base directory** to `frontend`.
+6. Leave the build command and publish directory as their defaults.
 
 ### Step 2: Configure Environment Variables
 
-In Vercel dashboard → Project → Settings → Environment Variables:
+Before clicking deploy, click on **Add environment variables**:
 
-| Variable | Value | Scope |
-|----------|-------|-------|
-| `NEXT_PUBLIC_API_URL` | `https://your-backend-name.onrender.com` | Production, Preview |
+1. Click **New variable**.
+2. **Key**: `NEXT_PUBLIC_API_URL`
+3. **Value**: `https://spiritual-chatbot-api.onrender.com` (Your Render backend URL)
+4. Click **Deploy site**.
 
-### Step 3: Deploy
+### Step 3: Wait for Build
 
-Click Deploy. Vercel builds and deploys in ~2–3 minutes. You get a URL like `spiritual-ai-guide.vercel.app`.
+Netlify takes ~2 minutes to build the Next.js app. Once finished, you will receive a free public URL (e.g., `https://magnificent-peony-1234.netlify.app`). You can customize this domain name in **Site settings** → **Domain management**.
 
 ### Step 4: Update Render CORS
 
-Go back to Render → Web Service → Environment → Update `CORS_ORIGINS` to your Vercel URL:
+Go back to Render → Web Service → Environment → Update `CORS_ORIGINS` to your new Netlify URL:
 ```
-CORS_ORIGINS=https://spiritual-ai-guide.vercel.app
+CORS_ORIGINS=https://your-custom-name.netlify.app
 ```
 
-Redeploy the Render service via the manual deploy button if it doesn't trigger automatically.
+Redeploy the Render service via the manual deploy button using "Clear build cache & deploy".
 
 ---
 
@@ -101,10 +106,10 @@ Redeploy the Render service via the manual deploy button if it doesn't trigger a
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `OPENAI_API_KEY` | OpenAI API key for GPT-4 Turbo | Yes | — |
-| `CORS_ORIGINS` | Comma-separated allowed origins (e.g., `https://your-app.vercel.app`) | Yes | localhost only |
+| `CORS_ORIGINS` | Comma-separated allowed origins (e.g., `https://your-app.netlify.app`) | Yes | localhost only |
 | `PORT` | Server port (Render maps this natively) | Auto | 8000 |
 
-### Vercel (Frontend)
+### Netlify (Frontend)
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
@@ -117,5 +122,5 @@ Redeploy the Render service via the manual deploy button if it doesn't trigger a
 | Problem | Likely Cause | Solution |
 |---------|-------------|----------|
 | Render Build OOM (Out of Memory) | PyTorch consuming RAM | The `requirements.txt` is hardcoded to `--extra-index-url https://download.pytorch.org/whl/cpu` to avoid this. Ensure it stays at the top of the file! |
-| CORS error in browser | `CORS_ORIGINS` not set | Add Vercel URL to Render `CORS_ORIGINS` variable |
+| CORS error in browser | `CORS_ORIGINS` not set | Add Netlify URL to Render `CORS_ORIGINS` variable |
 | Slow first response | Render Free Tier Sleep | Render free tier spins down after 15m of inactivity. The first request takes ~50 seconds to wake the server up. Subsequent requests are instant. |
