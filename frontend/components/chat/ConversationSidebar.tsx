@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getAllConversations, deleteConversation, ConversationMetadata } from '@/lib/storage';
+import { getAllConversations, deleteConversation, Conversation } from '@/lib/storage';
 import Link from 'next/link';
 
 /**
@@ -38,7 +38,7 @@ export default function ConversationSidebar({
   isOpen,
   onToggle,
 }: ConversationSidebarProps) {
-  const [conversations, setConversations] = useState<ConversationMetadata[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
