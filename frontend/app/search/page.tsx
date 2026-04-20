@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { searchNotes, SearchResult } from '@/lib/api';
 import Link from 'next/link';
@@ -23,7 +23,7 @@ const CATEGORIES = [
 
 const STORAGE_KEY = 'search_results';
 
-export default function SearchPage() {
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -331,5 +331,13 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto px-4 py-20 text-center text-stone-500 animate-pulse text-lg">Loading semantic search module...</div>}>
+      <SearchContent />
+    </Suspense>
   );
 }
