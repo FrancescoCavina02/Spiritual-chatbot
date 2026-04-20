@@ -51,14 +51,15 @@ venv.bak/
 # Logs
 *.log
 logs/
+backend/backend.log
 
 # Data directories
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/embeddings/*
-!data/embeddings/.gitkeep
+# data/raw/*
+# !data/raw/.gitkeep
+# data/processed/*
+# !data/processed/.gitkeep
+# # data/embeddings/*
+# # !data/embeddings/.gitkeep
 
 # ChromaDB
 chroma_db/

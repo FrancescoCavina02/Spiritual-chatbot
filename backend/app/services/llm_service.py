@@ -28,7 +28,7 @@ class BaseLLMProvider(ABC):
 class OllamaProvider(BaseLLMProvider):
     """Ollama local LLM provider"""
     
-    def __init__(self, model: str = "llama3.1", base_url: str = "http://localhost:11434"):
+    def __init__(self, model: Optional[str] = None, base_url: str = "http://localhost:11434"):
         """
         Initialize Ollama provider
         
@@ -36,7 +36,7 @@ class OllamaProvider(BaseLLMProvider):
             model: Model name (e.g., "llama3.1", "mistral")
             base_url: Ollama server URL
         """
-        self.model = model
+        self.model = model or os.getenv("OLLAMA_MODEL", "llama3.1")
         self.base_url = base_url
         
         try:
@@ -94,7 +94,7 @@ class OllamaProvider(BaseLLMProvider):
 class OpenAIProvider(BaseLLMProvider):
     """OpenAI API provider"""
     
-    def __init__(self, model: str = "gpt-4-turbo-preview", api_key: Optional[str] = None):
+    def __init__(self, model: Optional[str] = None, api_key: Optional[str] = None):
         """
         Initialize OpenAI provider
         
@@ -102,7 +102,7 @@ class OpenAIProvider(BaseLLMProvider):
             model: Model name
             api_key: OpenAI API key (or from environment)
         """
-        self.model = model
+        self.model = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         
         if not self.api_key:

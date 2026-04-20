@@ -1,49 +1,39 @@
 import Link from 'next/link';
 import SearchBar from '@/components/notes/SearchBar';
 
-/**
- * Home Page
- * 
- * This is a Server Component (no 'use client') because:
- * - It's mostly static content
- * - No interactivity or React hooks needed
- * - Renders faster on the server
- * 
- * Note: SearchBar is a Client Component, but can be used inside Server Components!
- */
 export default function Home() {
   return (
     <div className="max-w-4xl mx-auto space-y-12 py-12">
       {/* Hero Section */}
       <div className="text-center space-y-6">
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Welcome to Your
-          <br />
+        <h1 className="text-6xl font-bold bg-gradient-to-r from-teal-600 via-teal-700 to-amber-600 bg-clip-text text-transparent leading-tight pb-2">
           Spiritual AI Guide
-          </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          An intelligent companion drawing wisdom from 1,649 notes across spirituality, 
-          psychology, self-help, and philosophy to guide you through life's challenges.
+        </h1>
+        <p className="text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed">
+          A RAG-powered AI chatbot that semantically searches 1,649 personal notes on spirituality,
+          psychology, and philosophy — delivering grounded, cited responses via GPT-4 Turbo.
         </p>
-        
+
         {/* Search Bar */}
         <div className="max-w-3xl mx-auto pt-4">
-          <SearchBar placeholder="Search 1,649 notes with semantic AI..." />
+          <SearchBar placeholder="Semantic search across 1,649 notes…" />
         </div>
-        
+
         {/* CTA Buttons */}
         <div className="flex gap-4 justify-center pt-4">
           <Link
             href="/chat"
-            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            id="hero-cta-chat"
+            className="px-8 py-3 bg-gradient-to-br from-teal-600 to-teal-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           >
-            Start Chatting 💬
+            Start Chatting
           </Link>
           <Link
-            href="/notes"
-            className="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-2 border-purple-600"
+            href="/about"
+            id="hero-cta-about"
+            className="px-8 py-3 bg-white text-teal-700 rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 border-2 border-teal-600"
           >
-            Browse Notes 📚
+            About the Project
           </Link>
         </div>
       </div>
@@ -51,41 +41,41 @@ export default function Home() {
       {/* Features Grid */}
       <div className="grid md:grid-cols-3 gap-6 pt-8">
         <FeatureCard
-          emoji="🔍"
-          title="RAG-Powered"
-          description="Retrieves relevant wisdom from your personal knowledge base using semantic search"
+          icon="🔍"
+          title="Hybrid RAG Retrieval"
+          description="Combines dense vector search (cosine similarity) with BM25 keyword overlap and knowledge-graph link density for precise multi-signal retrieval."
         />
         <FeatureCard
-          emoji="📖"
-          title="Precise Citations"
-          description="Every answer includes references to specific notes and book passages"
+          icon="📖"
+          title="Grounded Citations"
+          description="Every response includes inline source references — title, book, and relevance score — drawn from the retrieved knowledge base."
         />
         <FeatureCard
-          emoji="🧘"
-          title="Spiritual Wisdom"
-          description="Drawing from 75+ books on spirituality, psychology, and self-help"
+          icon="🤖"
+          title="Multi-LLM Support"
+          description="Swap between GPT-4 Turbo, Ollama Llama 3.1 (free, local), Anthropic Claude, and Google Gemini with a single parameter."
         />
       </div>
 
-      {/* Categories Preview */}
-      <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6">Knowledge Categories</h2>
+      {/* Knowledge Categories */}
+      <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-md border border-stone-100">
+        <h2 className="text-2xl font-bold text-stone-800 mb-6">Knowledge Base Coverage</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            '🙏 Spiritual',
-            '💡 Self-Help',
-            '🧠 Psychology',
-            '🔬 Science',
-            '📚 Philosophy',
-            '🎯 Productivity',
-            '❤️ Relationships',
-            '🌟 Mindfulness',
-          ].map((category) => (
+            { icon: '🙏', label: 'Spiritual' },
+            { icon: '💡', label: 'Self-Help' },
+            { icon: '🧠', label: 'Psychology' },
+            { icon: '🔬', label: 'Neuroscience' },
+            { icon: '📚', label: 'Philosophy' },
+            { icon: '🎯', label: 'Productivity' },
+            { icon: '☯️', label: 'Eastern Philosophy' },
+            { icon: '🌿', label: 'Mindfulness' },
+          ].map(({ icon, label }) => (
             <div
-              key={category}
-              className="px-4 py-3 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-lg text-center font-medium text-gray-700 hover:scale-105 transition-transform duration-200"
+              key={label}
+              className="px-4 py-3 bg-teal-50 border border-teal-100 rounded-xl text-center font-medium text-teal-800 hover:scale-105 transition-transform duration-200 text-sm"
             >
-              {category}
+              {icon} {label}
             </div>
           ))}
         </div>
@@ -93,44 +83,47 @@ export default function Home() {
 
       {/* Tech Stack */}
       <div className="text-center space-y-4">
-        <h3 className="text-2xl font-bold text-gray-800">Powered By</h3>
+        <h3 className="text-xl font-bold text-stone-700">Technical Stack</h3>
         <div className="flex flex-wrap justify-center gap-3">
-          {['Next.js 14', 'FastAPI', 'OpenAI GPT-4', 'ChromaDB', 'RAG Pipeline'].map(
-            (tech) => (
-              <span
-                key={tech}
-                className="px-4 py-2 bg-white rounded-full text-sm font-semibold text-gray-700 shadow-md"
-          >
-                {tech}
-              </span>
-            )
-          )}
+          {[
+            'Python · FastAPI',
+            'ChromaDB · HNSW',
+            'all-MiniLM-L6-v2 (384D)',
+            'OpenAI GPT-4 Turbo',
+            'Ollama Llama 3.1',
+            'Next.js 14 · TypeScript',
+            'Docker · Railway · Vercel',
+          ].map((tech) => (
+            <span
+              key={tech}
+              className="px-4 py-2 bg-white border border-stone-200 rounded-full text-sm font-medium text-stone-600 shadow-sm"
+            >
+              {tech}
+            </span>
+          ))}
         </div>
+        <p className="text-sm text-stone-400 pt-2">
+          MSc AI Portfolio Project · University of Amsterdam Application · Francesco Cavina
+        </p>
       </div>
     </div>
   );
 }
 
-/**
- * Feature Card Component
- * 
- * A reusable component for displaying features.
- * This demonstrates component composition in React!
- */
 function FeatureCard({
-  emoji,
+  icon,
   title,
   description,
 }: {
-  emoji: string;
+  icon: string;
   title: string;
   description: string;
 }) {
   return (
-    <div className="bg-white/60 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-200">
-      <div className="text-4xl mb-4">{emoji}</div>
-      <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+    <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md border border-stone-100 hover:shadow-lg transition-shadow duration-200">
+      <div className="text-4xl mb-4">{icon}</div>
+      <h3 className="text-lg font-bold text-stone-800 mb-2">{title}</h3>
+      <p className="text-stone-500 text-sm leading-relaxed">{description}</p>
     </div>
   );
 }

@@ -5,25 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { searchNotes, SearchResult } from '@/lib/api';
 import Link from 'next/link';
 
-/**
- * Advanced Search Page
- * 
- * Semantic search across entire knowledge base with:
- * - Natural language queries
- * - Category filters
- * - Relevance scoring
- * - Result snippets
- * - Direct links to notes
- * - Search state persistence (URL params + sessionStorage)
- * 
- * React Learning:
- * - Async search with loading states
- * - Category filtering
- * - Result ranking and display
- * - URL query parameters for shareable/bookmarkable searches
- * - sessionStorage for persisting results across navigation
- */
-
 const CATEGORIES = [
   'All Categories',
   'Spiritual',
@@ -53,9 +34,6 @@ export default function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Load search state from URL params and sessionStorage on mount
-   */
   useEffect(() => {
     const urlQuery = searchParams.get('q');
     const urlCategory = searchParams.get('category');
@@ -65,20 +43,16 @@ export default function SearchPage() {
       setSelectedCategory(urlCategory || 'All Categories');
       setHasSearched(true);
       
-      // Load cached results from sessionStorage
       try {
         const cached = sessionStorage.getItem(STORAGE_KEY);
         if (cached) {
           const cachedData = JSON.parse(cached);
-          // Verify the cached results match current query
           if (cachedData.query === urlQuery && cachedData.category === urlCategory) {
             setResults(cachedData.results);
           } else {
-            // Query changed, perform new search
             performSearch(urlQuery, urlCategory || 'All Categories');
           }
         } else {
-          // No cache, perform search
           performSearch(urlQuery, urlCategory || 'All Categories');
         }
       } catch (err) {
@@ -88,9 +62,6 @@ export default function SearchPage() {
     }
   }, [searchParams]);
 
-  /**
-   * Update URL params when search state changes
-   */
   const updateURL = (newQuery: string, newCategory: string) => {
     const params = new URLSearchParams();
     if (newQuery) params.set('q', newQuery);
@@ -100,9 +71,6 @@ export default function SearchPage() {
     router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
-  /**
-   * Save results to sessionStorage
-   */
   const cacheResults = (searchQuery: string, category: string, searchResults: SearchResult[]) => {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -116,9 +84,6 @@ export default function SearchPage() {
     }
   };
 
-  /**
-   * Perform search (extracted for reuse)
-   */
   const performSearch = async (searchQuery: string, category: string) => {
     try {
       setIsLoading(true);
@@ -147,7 +112,6 @@ export default function SearchPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!query.trim()) return;
 
     setHasSearched(true);
@@ -155,41 +119,35 @@ export default function SearchPage() {
     await performSearch(query.trim(), selectedCategory);
   };
 
-  /**
-   * Get relevance score color based on score value
-   */
   const getScoreColor = (score: number): string => {
-    if (score >= 0.8) return 'text-green-600 bg-green-100';
-    if (score >= 0.6) return 'text-blue-600 bg-blue-100';
-    if (score >= 0.4) return 'text-yellow-600 bg-yellow-100';
-    return 'text-gray-600 bg-gray-100';
+    if (score >= 0.8) return 'text-teal-700 bg-teal-100';
+    if (score >= 0.6) return 'text-emerald-700 bg-emerald-100';
+    if (score >= 0.4) return 'text-amber-700 bg-amber-100';
+    return 'text-stone-600 bg-stone-100';
   };
 
-  /**
-   * Format relevance score as percentage
-   */
   const formatScore = (score: number): string => {
     return `${Math.round(score * 100)}%`;
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-          🔍 Semantic Search
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-amber-600 bg-clip-text text-transparent mb-3 pb-1">
+          Semantic Search
         </h1>
-        <p className="text-gray-600">
-          Search across 1,649 notes using natural language. Our AI understands meaning, not just keywords.
+        <p className="text-stone-600 text-lg">
+          Search across 1,649 notes using natural language. The AI understands meaning, not just keywords.
         </p>
       </div>
 
       {/* Search Form */}
-      <form onSubmit={handleSearch} className="mb-8">
-        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border-2 border-purple-200">
+      <form onSubmit={handleSearch} className="mb-10">
+        <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-stone-200">
           {/* Search Input */}
-          <div className="mb-4">
-            <label htmlFor="search-input" className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="mb-5">
+            <label htmlFor="search-input" className="block text-sm font-semibold text-stone-700 mb-2">
               What are you looking for?
             </label>
             <input
@@ -198,99 +156,105 @@ export default function SearchPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g., 'how to deal with anxiety' or 'meaning of consciousness'"
-              className="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors"
+              className="w-full px-5 py-4 text-lg border border-stone-200 rounded-xl focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all bg-white text-stone-800 placeholder-stone-400 shadow-sm"
               autoFocus
             />
           </div>
 
-          {/* Category Filter */}
-          <div className="mb-4">
-            <label htmlFor="category-filter" className="block text-sm font-semibold text-gray-700 mb-2">
-              Filter by category (optional)
-            </label>
-            <select
-              id="category-filter"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-purple-300 rounded-lg focus:outline-none focus:border-purple-500 transition-colors bg-white"
-            >
-              {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
+          <div className="md:flex gap-4 items-end">
+            {/* Category Filter */}
+            <div className="mb-4 md:mb-0 md:w-1/3">
+              <label htmlFor="category-filter" className="block text-sm font-semibold text-stone-700 mb-2">
+                Filter by category
+              </label>
+              <select
+                id="category-filter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full px-4 py-3 border border-stone-200 rounded-xl focus:outline-none focus:border-teal-500 bg-white text-stone-800 shadow-sm"
+              >
+                {CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Search Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !query.trim()}
-            className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <span className="animate-spin">⏳</span>
-                Searching...
-              </>
-            ) : (
-              <>
-                <span>🔍</span>
-                Search
-              </>
-            )}
-          </button>
+            {/* Search Button */}
+            <div className="md:w-2/3">
+              <button
+                type="submit"
+                disabled={isLoading || !query.trim()}
+                className="w-full h-12 bg-gradient-to-r from-teal-600 to-teal-800 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <span className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></span>
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Search
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       </form>
 
       {/* Error State */}
       {error && (
-        <div className="bg-red-100 border-2 border-red-400 text-red-700 px-6 py-4 rounded-lg mb-8">
-          <p className="font-semibold">Error</p>
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-8 shadow-sm">
+          <p className="font-semibold text-red-800">Error</p>
           <p>{error}</p>
         </div>
       )}
 
       {/* Results */}
       {hasSearched && !isLoading && (
-        <div>
+        <div className="space-y-6 animate-fade-in">
           {/* Result Count */}
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">
+          <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+            <h2 className="text-xl font-bold text-stone-800">
               {results.length === 0
                 ? 'No results found'
                 : `${results.length} result${results.length > 1 ? 's' : ''} found`}
             </h2>
             {selectedCategory !== 'All Categories' && (
-              <span className="text-sm text-gray-600">
-                Filtered by: <span className="font-semibold text-purple-600">{selectedCategory}</span>
+              <span className="text-sm text-stone-600 bg-stone-100 px-3 py-1 rounded-full">
+                Filtered by: <span className="font-semibold text-teal-700">{selectedCategory}</span>
               </span>
             )}
           </div>
 
           {/* Results List */}
           {results.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {results.map((result, index) => (
                 <Link
                   key={index}
                   href={`/notes/${encodeURIComponent(result.file_path)}`}
-                  className="block bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-purple-400"
+                  className="block bg-white/70 backdrop-blur-sm rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-stone-200 hover:border-teal-400 group"
                 >
                   {/* Result Header */}
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-gray-800 mb-2 hover:text-purple-600 transition-colors">
+                    <div className="flex-1 min-w-0 pr-4">
+                      <h3 className="text-lg font-bold text-stone-800 mb-2 group-hover:text-teal-700 transition-colors line-clamp-1">
                         {result.title}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {/* Category Badge */}
-                        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                          📁 {result.category}
+                        <span className="px-2.5 py-1 bg-stone-100 text-stone-700 border border-stone-200 rounded-md text-xs font-semibold">
+                          {result.category}
                         </span>
                         {/* Book Badge */}
                         {result.book && (
-                          <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+                          <span className="px-2.5 py-1 bg-teal-50 text-teal-700 border border-teal-100 rounded-md text-xs font-semibold">
                             📖 {result.book}
                           </span>
                         )}
@@ -299,45 +263,42 @@ export default function SearchPage() {
 
                     {/* Relevance Score */}
                     <div
-                      className={`ml-4 px-3 py-1 rounded-full text-xs font-bold ${getScoreColor(
+                      className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap ${getScoreColor(
                         result.relevance_score
                       )}`}
-                      title="Relevance score"
+                      title="Relevance score (cosine similarity + hybrid signals)"
                     >
                       {formatScore(result.relevance_score)}
                     </div>
                   </div>
 
                   {/* Snippet */}
-                  <p className="text-gray-700 text-sm line-clamp-3 leading-relaxed">
-                    ...{result.text}...
-                  </p>
+                  <div className="text-stone-600 text-sm leading-relaxed mt-4 bg-stone-50/50 p-4 rounded-lg border border-stone-100 italic relative">
+                    <span className="absolute -left-2 top-0 text-3xl text-stone-200 leading-none">"</span>
+                    {result.text}
+                    <span className="absolute -right-2 bottom-0 text-3xl text-stone-200 leading-none rotate-180">"</span>
+                  </div>
 
-                  {/* Read More */}
-                  <div className="mt-3 text-purple-600 text-sm font-medium flex items-center gap-1">
-                    Read full note
-                    <span>→</span>
+                  {/* Footer interaction CTA */}
+                  <div className="mt-4 flex justify-end">
+                    <span className="text-sm font-medium text-teal-600 group-hover:text-teal-800 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0">
+                      Read full note
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </span>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
             // Empty State
-            <div className="text-center py-12 bg-white/50 backdrop-blur-sm rounded-2xl">
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">No results found</h3>
-              <p className="text-gray-600 mb-4">
-                Try different keywords or remove category filters
+            <div className="text-center py-16 bg-white/50 backdrop-blur-sm rounded-2xl border border-stone-100 shadow-sm">
+              <div className="text-5xl mb-4 opacity-50">🔍</div>
+              <h3 className="text-xl font-bold text-stone-800 mb-2">No relevant passages found</h3>
+              <p className="text-stone-600 mb-4 max-w-md mx-auto">
+                The RAG pipeline couldn't find chunks matching this semantic query. Try different keywords or broader concepts.
               </p>
-              <div className="text-sm text-gray-500">
-                <p className="font-semibold mb-2">Search tips:</p>
-                <ul className="space-y-1">
-                  <li>• Use natural language questions</li>
-                  <li>• Try broader terms</li>
-                  <li>• Check spelling</li>
-                  <li>• Remove category filter to search everywhere</li>
-                </ul>
-              </div>
             </div>
           )}
         </div>
@@ -345,36 +306,30 @@ export default function SearchPage() {
 
       {/* Initial State (No search yet) */}
       {!hasSearched && !isLoading && (
-        <div className="text-center py-12 bg-white/50 backdrop-blur-sm rounded-2xl">
-          <div className="text-6xl mb-4">💡</div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">Start Your Search</h3>
-          <p className="text-gray-600 mb-6">
-            Enter a question or topic above to find relevant notes
-          </p>
-          
-          {/* Example Searches */}
-          <div className="max-w-2xl mx-auto text-left">
-            <p className="text-sm font-semibold text-gray-700 mb-3">Try these examples:</p>
-            <div className="space-y-2">
-              {[
-                'What is the essence of mindfulness?',
-                'How to deal with fear and anxiety?',
-                'What does living in the present moment mean?',
-                'How do I find my purpose?',
-              ].map((example, index) => (
-                <button
-                  key={index}
-                  onClick={() => setQuery(example)}
-                  className="block w-full text-left px-4 py-2 bg-purple-50 hover:bg-purple-100 rounded-lg text-sm text-purple-700 transition-colors"
-                >
-                  "{example}"
-                </button>
-              ))}
-            </div>
+        <div className="mt-8 animate-fade-in">
+          <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-4 text-center">
+            Example Semantic Queries
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+            {[
+              'The nature of consciousness and ego',
+              'Protocols for increasing motivation and drive',
+              'What does wu wei (non-action) mean in practice?',
+              'Overcoming fear and living in the present',
+            ].map((example, index) => (
+              <button
+                key={index}
+                onClick={() => setQuery(example)}
+                className="text-left px-5 py-4 bg-white/60 hover:bg-white border border-stone-200 hover:border-teal-200 rounded-xl text-sm font-medium text-stone-700 transition-colors shadow-sm hover:shadow-md group"
+              >
+                <span className="text-teal-600 mr-2 group-hover:font-bold transition-all">"</span>
+                {example}
+                <span className="text-teal-600 ml-1 group-hover:font-bold transition-all">"</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
     </div>
   );
 }
-

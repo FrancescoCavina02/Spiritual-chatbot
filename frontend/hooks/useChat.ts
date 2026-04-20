@@ -60,7 +60,7 @@ export function useChat() {
         if (conversation.title === 'New Conversation' && messages.length > 0) {
           const firstUserMsg = messages.find(m => m.role === 'user');
           if (firstUserMsg) {
-            conversation.title = firstUserMsg.content.slice(0, 50) + 
+            conversation.title = firstUserMsg.content.slice(0, 50) +
               (firstUserMsg.content.length > 50 ? '...' : '');
           }
         }
@@ -90,7 +90,7 @@ export function useChat() {
       content,
       timestamp: new Date().toISOString(),
     };
-    
+
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
     setStreamingContent('');
@@ -130,28 +130,28 @@ export function useChat() {
         citations,
         timestamp: new Date().toISOString(),
       };
-      
+
       setMessages((prev) => [...prev, aiMessage]);
       setStreamingContent('');
-      
+
     } catch (error) {
       console.error('Error in chat:', error);
-      
+
       // Extract user-friendly error message
-      const errorMessageText = error instanceof Error 
-        ? error.message 
+      const errorMessageText = error instanceof Error
+        ? error.message
         : 'Sorry, I encountered an error. Please try again.';
-      
+
       // Add error message
       const errorMessage: ChatMessage = {
         role: 'assistant',
         content: `❌ ${errorMessageText}`,
         timestamp: new Date().toISOString(),
       };
-      
+
       setMessages((prev) => [...prev, errorMessage]);
       setCurrentCitations([]);
-      
+
     } finally {
       setIsLoading(false);
     }

@@ -6,6 +6,7 @@ Orchestrates the complete RAG pipeline: query → retrieval → generation
 from typing import List, Dict, Any, Optional
 import logging
 import re
+import ast
 
 from app.services.vector_db import get_vector_db
 from app.services.embedding_service import get_embedding_service
@@ -123,10 +124,10 @@ class RAGEngine:
             # Link density bonus (10%) - more connected notes are more important
             links_str = chunk['metadata'].get('links', '[]')
             try:
-                links = eval(links_str) if isinstance(links_str, str) else links_str
+                links = ast.literal_eval(links_str) if isinstance(links_str, str) else links_str
                 link_count = len(links) if isinstance(links, list) else 0
                 score += min(link_count * 0.01, 0.1)
-            except:
+            except (ValueError, SyntaxError):
                 pass
             
             chunk['final_score'] = score

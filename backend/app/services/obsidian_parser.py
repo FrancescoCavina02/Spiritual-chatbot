@@ -45,15 +45,25 @@ class ObsidianParser:
             exclude_patterns = ['.obsidian', 'templates', 'Archive']
         
         notes = []
-        markdown_files = list(self.vault_path.rglob("*.md"))
+        markdown_files = []
+        
+        import os
+        for root, dirs, files in os.walk(str(self.vault_path)):
+            # Modify dirs in-place to skip excluded directories to save I/O
+            dirs[:] = [d for d in dirs if not any(p in d for p in exclude_patterns)]
+            
+            for file in files:
+                if file.endswith('.md'):
+                    file_path = Path(root) / file
+                    if not any(pattern in str(file_path) for pattern in exclude_patterns):
+                        markdown_files.append(file_path)
         
         logger.info(f"Found {len(markdown_files)} markdown files")
         
-        for file_path in markdown_files:
-            # Skip excluded paths
-            if any(pattern in str(file_path) for pattern in exclude_patterns):
-                continue
-            
+        for i, file_path in enumerate(markdown_files):
+            if i > 0 and i % 100 == 0:
+                logger.info(f"Parsed {i}/{len(markdown_files)} notes...")
+                
             try:
                 note = self.parse_note(file_path)
                 if note:

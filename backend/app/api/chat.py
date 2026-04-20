@@ -53,11 +53,14 @@ async def chat(request: ChatRequest):
             category_filter=request.category_filter
         )
         
-        # Step 2: Construct prompt
+        # Step 2: Construct RAG prompt with retrieved context
+        # Note: conversation history is managed client-side and passed via
+        # the request body; here we pass None to keep responses self-contained
+        # per the current single-turn RAG design.
         prompt = rag_engine.construct_prompt(
             query=request.message,
             context=context,
-            conversation_history=None  # TODO: Add conversation history support
+            conversation_history=None
         )
         
         # Step 3: Generate response

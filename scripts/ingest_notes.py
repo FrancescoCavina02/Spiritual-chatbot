@@ -1,9 +1,15 @@
 """
 Main Data Ingestion Script
 Parse Obsidian vault, chunk notes, and generate embeddings
+into ChromaDB for use with the RAG pipeline.
+
+Usage:
+    export OBSIDIAN_VAULT_PATH=/path/to/your/obsidian/vault
+    python scripts/ingest_notes.py
 """
 
 import json
+import os
 import sys
 from pathlib import Path
 import logging
@@ -42,11 +48,20 @@ def save_chunks(chunks: List[Chunk], output_file: Path):
 def main():
     """Main ingestion pipeline"""
     
-    # Configuration
-    VAULT_PATH = "/Users/francescocavina/Library/Mobile Documents/iCloud~md~obsidian/Documents/Obsidian Books"
+    # Configuration — read vault path from environment variable
+    vault_path_env = os.getenv("OBSIDIAN_VAULT_PATH")
+    if not vault_path_env:
+        logger.error(
+            "OBSIDIAN_VAULT_PATH environment variable not set. "
+            "Example: export OBSIDIAN_VAULT_PATH=/path/to/your/vault"
+        )
+        sys.exit(1)
+    
+    VAULT_PATH = vault_path_env
     DATA_DIR = Path(__file__).parent.parent / "data"
     PROCESSED_DIR = DATA_DIR / "processed"
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
     
     logger.info("="*60)
     logger.info("SPIRITUAL AI GUIDE - DATA INGESTION PIPELINE")
