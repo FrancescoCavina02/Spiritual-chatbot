@@ -7,6 +7,7 @@ import chromadb
 from chromadb.config import Settings
 from typing import List, Optional, Dict, Any
 import logging
+import os
 from pathlib import Path
 
 from app.models.note import Chunk
@@ -19,16 +20,21 @@ class VectorDBService:
     
     def __init__(
         self,
-        persist_directory: str = "../data/embeddings",
+        persist_directory: Optional[str] = None,
         collection_name: str = "spiritual_notes"
     ):
         """
         Initialize vector database service
         
         Args:
-            persist_directory: Directory to persist ChromaDB data
+            persist_directory: Directory to persist ChromaDB data. 
+                              If None, reads from CHROMA_PERSIST_DIRECTORY env var or defaults to "./data/embeddings".
             collection_name: Name of the collection to use
         """
+        # Priority: constructor arg -> env var -> safe local default
+        if persist_directory is None:
+            persist_directory = os.getenv("CHROMA_PERSIST_DIRECTORY", "data/embeddings")
+            
         self.persist_directory = Path(persist_directory)
         self.persist_directory.mkdir(parents=True, exist_ok=True)
         
@@ -295,13 +301,14 @@ _vector_db: Optional[VectorDBService] = None
 
 
 def get_vector_db(
-    persist_directory: str = "../data/embeddings"
+    persist_directory: Optional[str] = None
 ) -> VectorDBService:
     """
     Get or create the global vector database instance
     
     Args:
-        persist_directory: Directory to persist ChromaDB data
+        persist_directory: Directory to persist ChromaDB data. 
+                          If None, it will be handled by VectorDBService constructor.
     
     Returns:
         VectorDBService instance

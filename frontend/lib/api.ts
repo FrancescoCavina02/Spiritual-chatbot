@@ -5,7 +5,9 @@
  * It provides typed functions for each endpoint.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = 
+  process.env.NEXT_PUBLIC_API_URL || 
+  'https://spiritual-chatbot-api.onrender.com'; // Soft fallback for production preview
 
 /**
  * Type Definitions
@@ -150,7 +152,7 @@ export interface SearchParams {
  */
 function createErrorMessage(error: unknown, defaultMessage: string): string {
   if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-    return 'Unable to connect to the server. Please ensure the backend is running at http://localhost:8000';
+    return `Unable to connect to the server at ${API_BASE_URL}. Please ensure the backend is running and CORS is configured correctly.`;
   }
   if (error instanceof Error) {
     return error.message || defaultMessage;
