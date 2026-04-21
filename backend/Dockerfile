@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install dependencies
-COPY requirements.txt .
+# Path is relative to dockerContext (repo root)
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # ======================================
@@ -33,15 +34,16 @@ COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
 # Copy application code
-COPY app/ ./app/
+# Path is relative to dockerContext (repo root)
+COPY backend/app/ ./app/
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app/data/embeddings && \
     chown -R appuser:appuser /app
 
-# Copy pre-built ChromaDB snapshot AFTER user/dir setup
-# (context must be repo root: dockerContext: . in render.yaml)
+# Copy pre-built ChromaDB snapshot
+# Path is relative to dockerContext (repo root)
 COPY --chown=appuser:appuser data/embeddings/ ./data/embeddings/
 
 # Switch to non-root user
@@ -56,4 +58,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 # Run application with production settings
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
-
