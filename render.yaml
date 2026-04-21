@@ -16,6 +16,6 @@ services:
       - key: CORS_ORIGINS
         sync: false
       - key: CHROMA_PERSIST_DIRECTORY
-        value: /app/data/embeddings 
+        value: /app/data/embeddings
       - key: VAULT_PATH
-        value: ./data/raw
+        value: /app/data/raw

@@ -14,7 +14,7 @@ class Note(BaseModel):
     book: Optional[str] = Field(None, description="Book or source name")
     file_path: str = Field(..., description="Relative path from vault root")
     links: List[str] = Field(default_factory=list, description="Obsidian links [[Note]]")
-    word_count: int = Field(..., description="Number of words in content")
+    word_count: int = Field(default=0, description="Number of words in content")
     created_at: datetime = Field(default_factory=datetime.now)
     
     class Config:
