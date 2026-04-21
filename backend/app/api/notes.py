@@ -17,27 +17,56 @@ _notes_cache = None
 
 
 def load_notes():
-    """Load notes from JSON file"""
+    """Load notes from JSON file, or fall back to ChromaDB in Database Mode."""
     global _notes_cache
     
     if _notes_cache is not None:
         return _notes_cache
-    
+
     notes_file = Path("../data/processed/notes.json")
-    
-    if not notes_file.exists():
-        logger.warning(f"Notes file not found: {notes_file}")
-        return []
-    
+
+    if notes_file.exists():
+        try:
+            with open(notes_file, 'r', encoding='utf-8') as f:
+                _notes_cache = json.load(f)
+            logger.info(f"Loaded {len(_notes_cache)} notes from JSON cache")
+            return _notes_cache
+        except Exception as e:
+            logger.error(f"Error loading notes from JSON: {e}")
+
+    # --- Database Mode: load from ChromaDB ---
+    logger.info("notes.json not found — loading note metadata from ChromaDB")
     try:
-        with open(notes_file, 'r', encoding='utf-8') as f:
-            _notes_cache = json.load(f)
-        
-        logger.info(f"Loaded {len(_notes_cache)} notes from cache")
+        from app.services.vector_db import get_vector_db
+        vector_db = get_vector_db()
+
+        # Fetch all stored metadata (no embeddings needed)
+        results = vector_db.collection.get(include=["metadatas"])
+        metadatas = results.get("metadatas", [])
+        ids = results.get("ids", [])
+
+        # De-duplicate by note_id (multiple chunks per note)
+        seen = {}
+        for i, meta in enumerate(metadatas):
+            note_id = meta.get("note_id") or ids[i]
+            if note_id not in seen:
+                seen[note_id] = {
+                    "id": note_id,
+                    "title": meta.get("title", "Untitled"),
+                    "content": "",          # chunks not needed for listing
+                    "category": meta.get("category", "Unknown"),
+                    "book": meta.get("book"),
+                    "file_path": meta.get("file_path", ""),
+                    "links": [],
+                    "word_count": int(meta.get("word_count", 0)),
+                }
+
+        _notes_cache = list(seen.values())
+        logger.info(f"Loaded {len(_notes_cache)} unique notes from ChromaDB metadata")
         return _notes_cache
-    
+
     except Exception as e:
-        logger.error(f"Error loading notes: {e}")
+        logger.error(f"ChromaDB fallback failed: {e}", exc_info=True)
         return []
 
 
