@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
 dist/
 downloads/
@@ -53,19 +52,18 @@ venv.bak/
 logs/
 backend/backend.log
 
-# Data directories
-# data/raw/*
-# !data/raw/.gitkeep
-# data/processed/*
-# !data/processed/.gitkeep
-# # data/embeddings/*
-# # !data/embeddings/.gitkeep
+# ============================================================
+# DATA DIRECTORIES
+# Allow all files inside data/embeddings/ (ChromaDB snapshot).
+# These negation rules MUST come before any broad deny rules
+# (*.bin, *.sqlite3, etc.) that would otherwise override them.
+# ============================================================
+!data/
+!data/embeddings/
+!data/embeddings/**
 
-# ChromaDB
+# ChromaDB standalone databases (outside data/embeddings/) — ignore
 chroma_db/
-*.db
-*.sqlite
-*.sqlite3
 
 # Node.js / Frontend
 node_modules/
@@ -76,7 +74,7 @@ build/
 *.tsbuildinfo
 next-env.d.ts
 
-# Package manager locks (keep package.json, ignore locks for flexibility)
+# Package manager locks
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
@@ -112,9 +110,9 @@ temp/
 *~
 
 # ML Model files (large binaries)
-# Note: This ignores model binaries but NOT backend/app/models/ (Python code)
+# Scoped to /models/ — does NOT use *.bin globally so ChromaDB
+# index files inside data/embeddings/ are never accidentally blocked.
 /models/
-*.bin
 *.safetensors
 *.gguf
 *.pt
@@ -128,4 +126,3 @@ credentials.json
 
 # Project specific
 # (plan files are now tracked for documentation purposes)
-

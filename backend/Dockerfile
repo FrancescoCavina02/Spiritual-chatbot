@@ -40,6 +40,10 @@ RUN useradd -m -u 1000 appuser && \
     mkdir -p /app/data/embeddings && \
     chown -R appuser:appuser /app
 
+# Copy pre-built ChromaDB snapshot AFTER user/dir setup
+# (context must be repo root: dockerContext: . in render.yaml)
+COPY --chown=appuser:appuser data/embeddings/ ./data/embeddings/
+
 # Switch to non-root user
 USER appuser
 
