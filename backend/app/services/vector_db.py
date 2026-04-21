@@ -18,6 +18,12 @@ logger = logging.getLogger(__name__)
 class VectorDBService:
     """Service for managing ChromaDB vector database"""
     
+    def __init__(self, persist_directory: Optional[str] = None, collection_name: str = "spiritual_notes"):
+        """
+        Initialize the vector database service
+        
+        Args:
+            persist_directory: Optional custom directory. If None, uses env var or default.
             collection_name: Name of the collection to use
         """
         # Priority: constructor arg -> env var -> safe local default

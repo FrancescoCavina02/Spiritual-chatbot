@@ -201,9 +201,9 @@ Full deployment guide: [docs/deployment.md](docs/deployment.md)
 
 | Component | Platform | URL |
 |-----------|----------|-----|
-| Frontend | Vercel | [[LIVE_URL]] |
-| Backend API | Railway | [[LIVE_URL]]/api |
-| API Docs (Swagger) | Railway | [[LIVE_URL]]/docs |
+| Frontend | Vercel | https://spiritualchatbot1.netlify.app |
+| Backend API | Railway | https://spiritual-chatbot-api.onrender.com/api |
+| API Docs (Swagger) | Railway | https://spiritual-chatbot-api.onrender.com/docs |
 
 **Architecture:** The Next.js frontend is deployed to Vercel's edge network. The FastAPI backend (with pre-seeded ChromaDB embeddings) runs on Railway with a persistent volume mount for the vector database. Environment variables are configured via each platform's dashboard.
 
@@ -260,6 +260,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 <div align="center">
 
 Built by **Francesco Cavina** · Powered by RAG + GPT-4 Turbo + ChromaDB  
-[GitHub](https://github.com/FrancescoCavina02/Spiritual-chatbot) · [Live Demo]([LIVE_URL])
+[GitHub](https://github.com/FrancescoCavina02/Spiritual-chatbot) · [Live Demo](https://spiritualchatbot1.netlify.app)
 
 </div>

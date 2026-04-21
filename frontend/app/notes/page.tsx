@@ -49,7 +49,7 @@ export default function NotesPage() {
           <div className="text-6xl mb-4">❌</div>
           <p className="text-red-700 font-semibold mb-2">{error}</p>
           <p className="text-stone-600 text-sm">
-            Make sure the backend is running at http://localhost:8000
+            Make sure the backend is deployed and running.
           </p>
         </div>
       </div>
