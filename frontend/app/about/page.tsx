@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'About — Spiritual AI Guide',
   description:
-    'About the Spiritual AI Guide: a RAG-powered chatbot built with FastAPI, ChromaDB, sentence-transformers, and GPT-4 Turbo as an MSc AI portfolio project.',
+    'About the Spiritual AI Guide: a RAG-powered chatbot built with FastAPI, ChromaDB, sentence-transformers, and GPT-4 Turbo.',
 };
 
 export default function AboutPage() {
@@ -16,8 +16,7 @@ export default function AboutPage() {
         </h1>
         <p className="text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
           A production-deployed RAG chatbot that semantically searches 1,649 personal Obsidian notes
-          and generates spiritually-grounded, cited responses — built as an MSc AI portfolio project
-          for the University of Amsterdam.
+          and generates spiritually-grounded, cited responses.
         </p>
         <div className="flex justify-center gap-4 pt-4">
           <a
@@ -122,9 +121,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* AI Skills Demonstrated */}
+      {/* AI Skills Involved */}
       <section className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-md border border-stone-100">
-        <h2 className="text-2xl font-bold text-stone-800 mb-6">AI Skills Demonstrated</h2>
+        <h2 className="text-2xl font-bold text-stone-800 mb-6">AI Skills Involved</h2>
         <div className="grid md:grid-cols-2 gap-3">
           {[
             'End-to-end RAG pipeline from raw corpus to deployed API',
@@ -179,8 +178,8 @@ export default function AboutPage() {
                 'Next.js 14 + TypeScript',
                 'Tailwind CSS',
                 'Docker + docker-compose',
-                'Vercel (frontend)',
-                'Railway (backend)',
+                'Netlify (frontend)',
+                'Render (backend)',
               ],
             },
           ].map(({ category, items }) => (
@@ -199,34 +198,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Academic Context */}
-      <section className="bg-gradient-to-br from-teal-50 to-amber-50 rounded-2xl p-8 shadow-md border border-teal-100">
-        <h2 className="text-2xl font-bold text-stone-800 mb-4">Academic Context</h2>
-        <p className="text-stone-600 leading-relaxed mb-4">
-          This project was built as part of my MSc Artificial Intelligence application portfolio for
-          the University of Amsterdam (2025–2026). It demonstrates practical fluency in the core
-          techniques of modern applied NLP — retrieval-augmented generation, dense vector search,
-          transformer-based sentence embeddings, and production LLM integration — implemented from
-          scratch on a real personal knowledge corpus.
-        </p>
-        <p className="text-stone-600 leading-relaxed">
-          The project reflects end-to-end AI engineering capability: from corpus ingestion and
-          preprocessing through embedding and indexing, to evaluated multi-model generation with
-          streaming delivery — the full stack of skills required for graduate-level NLP research.
-        </p>
-        <div className="mt-6 pt-6 border-t border-teal-100 text-sm text-stone-500">
-          Built by <strong className="text-stone-700">Francesco Cavina</strong> ·
-          MSc AI Portfolio · University of Amsterdam Application ·{' '}
-          <a
-            href="https://github.com/FrancescoCavina02/Spiritual-chatbot"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-teal-600 hover:text-teal-800 transition-colors"
-          >
-            View on GitHub
-          </a>
-        </div>
-      </section>
+
     </div>
   );
 }

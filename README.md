@@ -209,13 +209,7 @@ Full deployment guide: [docs/deployment.md](docs/deployment.md)
 
 ---
 
-## Academic Context
 
-This project was built as part of my MSc Artificial Intelligence application portfolio for the University of Amsterdam (2025–2026). It demonstrates practical fluency in the core techniques of modern applied NLP: retrieval-augmented generation, dense vector search, transformer-based sentence embeddings, and production LLM integration — implemented from scratch without scaffolding frameworks, on a real personal knowledge corpus of 1,649 notes accumulated over three years of study.
-
-The project reflects my ability to design and implement complete AI systems end-to-end: from corpus ingestion and preprocessing, through embedding and indexing, to evaluated multi-model generation with streaming delivery — the full stack of skills required for graduate-level NLP and AI engineering research.
-
----
 
 ## Repository Structure
 

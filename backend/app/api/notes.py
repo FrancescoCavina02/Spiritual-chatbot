@@ -14,6 +14,7 @@ router = APIRouter(prefix="/api/notes", tags=["notes"])
 
 # Cache for notes (loaded from JSON)
 _notes_cache = None
+_title_index: dict = {}
 
 
 def load_notes():
@@ -68,6 +69,31 @@ def load_notes():
     except Exception as e:
         logger.error(f"ChromaDB fallback failed: {e}", exc_info=True)
         return []
+
+def get_title_index() -> dict:
+    """Build a title → file_path lookup from metadata only. Built once, then cached."""
+    global _title_index
+    if _title_index:
+        return _title_index
+
+    logger.info("Building title index from ChromaDB metadata (one-time)...")
+    try:
+        from app.services.vector_db import get_vector_db
+        vector_db = get_vector_db()
+
+        results = vector_db.collection.get(include=["metadatas"])
+
+        for meta in results.get("metadatas", []):
+            title = (meta.get("title") or "").strip()
+            file_path = meta.get("file_path", "")
+            if title and file_path:
+                _title_index[title.lower()] = file_path
+
+        logger.info(f"Title index built: {len(_title_index)} unique titles")
+    except Exception as e:
+        logger.error(f"Failed to build title index: {e}", exc_info=True)
+
+    return _title_index
 
 
 @router.get("", response_model=List[NoteResponse])
@@ -180,24 +206,19 @@ async def get_note_by_id(note_id: str):
                 include=["documents", "metadatas"]
             )
 
-        # --- Attempt 3: title match (handles bare wiki-link titles) ---
+        # --- Attempt 3: title index lookup (cheap — metadata-only, built once) ---
         if not results['ids']:
-            logger.info(f"file_path/note_id lookup failed, trying title match for: {note_id}")
-            all_results = vector_db.collection.get(include=["documents", "metadatas"])
-            matching_ids = []
-            for i, meta in enumerate(all_results.get("metadatas", [])):
-                # Match by title (case-insensitive, strip .md if present)
-                stored_title = (meta.get("title") or "").lower().strip()
-                search_title = note_id.lower().strip().removesuffix(".md")
-                if stored_title == search_title:
-                    matching_ids.append(i)
-            
-            if matching_ids:
-                results = {
-                    "ids": [all_results["ids"][i] for i in matching_ids],
-                    "documents": [all_results["documents"][i] for i in matching_ids],
-                    "metadatas": [all_results["metadatas"][i] for i in matching_ids],
-                }
+            logger.info(f"file_path/note_id lookup failed, trying title index for: {note_id}")
+            title_index = get_title_index()
+            search_title = note_id.lower().strip().removesuffix(".md")
+            matched_file_path = title_index.get(search_title)
+
+            if matched_file_path:
+                logger.info(f"Title index matched '{note_id}' → '{matched_file_path}'")
+                results = vector_db.collection.get(
+                    where={"file_path": matched_file_path},
+                    include=["documents", "metadatas"]
+                )
 
         if not results['ids']:
             raise HTTPException(status_code=404, detail=f"Note not found: {note_id}")

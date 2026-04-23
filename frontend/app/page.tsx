@@ -92,7 +92,7 @@ export default function Home() {
             'OpenAI GPT-4 Turbo',
             'Ollama Llama 3.1',
             'Next.js 14 · TypeScript',
-            'Docker · Railway · Vercel',
+            'Docker · Render · Netlify',
           ].map((tech) => (
             <span
               key={tech}
@@ -103,7 +103,7 @@ export default function Home() {
           ))}
         </div>
         <p className="text-sm text-stone-400 pt-2">
-          MSc AI Portfolio Project · University of Amsterdam Application · Francesco Cavina
+          Francesco Cavina
         </p>
       </div>
     </div>

@@ -116,7 +116,7 @@ app = FastAPI(
         "**RAG Pipeline:** Obsidian Vault → Semantic Chunking → "
         "all-MiniLM-L6-v2 Embeddings (384D) → ChromaDB → "
         "Hybrid BM25 + Dense Retrieval → Re-ranking → LLM Generation with citations.\n\n"
-        "**Author:** Francesco Cavina · MSc AI Portfolio Project"
+        "**Author:** Francesco Cavina"
     ),
     version="1.0.0",
     contact={
