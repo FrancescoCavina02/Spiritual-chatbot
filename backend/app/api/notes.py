@@ -163,60 +163,46 @@ async def get_categories():
 @router.get("/{note_id:path}", response_model=NoteResponse)
 async def get_note_by_id(note_id: str):
     """
-    Get a specific note by ID or file path
-    
-    Accepts either:
-    - Note ID (from notes.json)
-    - File path (e.g., "Spiritual/A New Earth/Note.md")
-    
-    Falls back to querying ChromaDB if notes.json doesn't exist
+    Get a specific note by ID or file path.
+    Always fetches full content from ChromaDB — the listing cache 
+    only holds metadata (content=""), so we bypass it here.
     """
     try:
-        # Try loading from notes.json first
-        notes = load_notes()
-        
-        if notes:
-            # Try to find by ID or file_path
-            note = next((n for n in notes if n['id'] == note_id or n['file_path'] == note_id), None)
-            
-            if note:
-                return NoteResponse(
-                    id=note['id'],
-                    title=note['title'],
-                    content=note['content'],
-                    category=note['category'],
-                    book=note.get('book'),
-                    file_path=note['file_path'],
-                    links=note.get('links', []),
-                    word_count=note['word_count'],
-                    related_notes=[]
-                )
-        
-        # Fallback: Query ChromaDB to reconstruct note
-        logger.info(f"Notes.json not found or note not in cache. Querying ChromaDB for: {note_id}")
-        
+        # --- Always go straight to ChromaDB for full content ---
+        # The listing cache has content="" by design, so we can't
+        # use it for individual note pages.
+        logger.info(f"Fetching full note content from ChromaDB for: {note_id}")
         from app.services.vector_db import get_vector_db
         vector_db = get_vector_db()
-        
-        # Query ChromaDB for chunks with matching file_path
+
+        # Query ChromaDB for all chunks with matching file_path
         results = vector_db.collection.get(
             where={"file_path": note_id},
             include=["documents", "metadatas"]
         )
-        
+
+        if not results['ids'] or len(results['ids']) == 0:
+            # Try matching by note_id field as fallback
+            results = vector_db.collection.get(
+                where={"note_id": note_id},
+                include=["documents", "metadatas"]
+            )
+
         if not results['ids'] or len(results['ids']) == 0:
             raise HTTPException(status_code=404, detail=f"Note not found: {note_id}")
-        
-        # Reconstruct note from chunks
-        chunks_metadata = results['metadatas']
-        chunks_text = results['documents']
-        
-        # Get metadata from first chunk
+
+        # Sort chunks by chunk_index to preserve reading order
+        chunks = list(zip(results['ids'], results['documents'], results['metadatas']))
+        chunks.sort(key=lambda x: int(x[2].get('chunk_index', 0)))
+
+        chunks_metadata = [c[2] for c in chunks]
+        chunks_text = [c[1] for c in chunks]
+
         first_metadata = chunks_metadata[0]
-        
-        # Combine all chunk texts
+
+        # Combine all chunk texts in order
         full_content = "\n\n".join(chunks_text)
-        
+
         # Extract links from all chunks
         all_links = set()
         for metadata in chunks_metadata:
@@ -225,22 +211,21 @@ async def get_note_by_id(note_id: str):
                 links = json.loads(links_str) if isinstance(links_str, str) else links_str
                 if isinstance(links, list):
                     all_links.update(links)
-            except (json.JSONDecodeError, TypeError) as e:
-                logger.warning(f"Failed to parse links from metadata: {e}")
+            except (json.JSONDecodeError, TypeError):
                 pass
-        
+
         return NoteResponse(
             id=first_metadata.get('note_id', note_id),
             title=first_metadata.get('title', 'Untitled'),
             content=full_content,
             category=first_metadata.get('category', 'Unknown'),
-            book=first_metadata.get('book'),
+            book=first_metadata.get('book') or None,
             file_path=note_id,
             links=list(all_links),
             word_count=len(full_content.split()),
             related_notes=[]
         )
-    
+
     except HTTPException:
         raise
     except Exception as e:
