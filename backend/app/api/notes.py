@@ -162,48 +162,55 @@ async def get_categories():
 
 @router.get("/{note_id:path}", response_model=NoteResponse)
 async def get_note_by_id(note_id: str):
-    """
-    Get a specific note by ID or file path.
-    Always fetches full content from ChromaDB — the listing cache 
-    only holds metadata (content=""), so we bypass it here.
-    """
     try:
-        # --- Always go straight to ChromaDB for full content ---
-        # The listing cache has content="" by design, so we can't
-        # use it for individual note pages.
         logger.info(f"Fetching full note content from ChromaDB for: {note_id}")
         from app.services.vector_db import get_vector_db
         vector_db = get_vector_db()
 
-        # Query ChromaDB for all chunks with matching file_path
+        # --- Attempt 1: exact file_path match ---
         results = vector_db.collection.get(
             where={"file_path": note_id},
             include=["documents", "metadatas"]
         )
 
-        if not results['ids'] or len(results['ids']) == 0:
-            # Try matching by note_id field as fallback
+        # --- Attempt 2: exact note_id match ---
+        if not results['ids']:
             results = vector_db.collection.get(
                 where={"note_id": note_id},
                 include=["documents", "metadatas"]
             )
 
-        if not results['ids'] or len(results['ids']) == 0:
+        # --- Attempt 3: title match (handles bare wiki-link titles) ---
+        if not results['ids']:
+            logger.info(f"file_path/note_id lookup failed, trying title match for: {note_id}")
+            all_results = vector_db.collection.get(include=["documents", "metadatas"])
+            matching_ids = []
+            for i, meta in enumerate(all_results.get("metadatas", [])):
+                # Match by title (case-insensitive, strip .md if present)
+                stored_title = (meta.get("title") or "").lower().strip()
+                search_title = note_id.lower().strip().removesuffix(".md")
+                if stored_title == search_title:
+                    matching_ids.append(i)
+            
+            if matching_ids:
+                results = {
+                    "ids": [all_results["ids"][i] for i in matching_ids],
+                    "documents": [all_results["documents"][i] for i in matching_ids],
+                    "metadatas": [all_results["metadatas"][i] for i in matching_ids],
+                }
+
+        if not results['ids']:
             raise HTTPException(status_code=404, detail=f"Note not found: {note_id}")
 
-        # Sort chunks by chunk_index to preserve reading order
+        # Sort chunks by chunk_index for correct reading order
         chunks = list(zip(results['ids'], results['documents'], results['metadatas']))
         chunks.sort(key=lambda x: int(x[2].get('chunk_index', 0)))
 
         chunks_metadata = [c[2] for c in chunks]
         chunks_text = [c[1] for c in chunks]
-
         first_metadata = chunks_metadata[0]
-
-        # Combine all chunk texts in order
         full_content = "\n\n".join(chunks_text)
 
-        # Extract links from all chunks
         all_links = set()
         for metadata in chunks_metadata:
             links_str = metadata.get('links', '[]')
@@ -220,7 +227,7 @@ async def get_note_by_id(note_id: str):
             content=full_content,
             category=first_metadata.get('category', 'Unknown'),
             book=first_metadata.get('book') or None,
-            file_path=note_id,
+            file_path=first_metadata.get('file_path', note_id),  # return REAL file_path
             links=list(all_links),
             word_count=len(full_content.split()),
             related_notes=[]
