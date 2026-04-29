@@ -11,7 +11,7 @@
 [![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4%20Turbo-412991?style=flat-square&logo=openai&logoColor=white)](https://openai.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-**[Live Demo]([LIVE_URL]) · [API Docs]([LIVE_URL]/docs) · [Architecture](docs/architecture.md) · [RAG Pipeline](docs/rag-pipeline.md)**
+**[Live Demo](https://spiritualchatbot1.netlify.app/) · [API Docs](https://spiritualchatbot1.netlify.app/docs) · [Architecture](docs/architecture.md) · [RAG Pipeline](docs/rag-pipeline.md) · [Portfolio](https://francesco-cavina.netlify.app/)**
 
 </div>
 
@@ -201,7 +201,7 @@ Full deployment guide: [docs/deployment.md](docs/deployment.md)
 
 | Component | Platform | URL |
 |-----------|----------|-----|
-| Frontend | Vercel | https://spiritualchatbot1.netlify.app |
+| Frontend | Netlify | https://spiritualchatbot1.netlify.app |
 | Backend API | Railway | https://spiritual-chatbot-api.onrender.com/api |
 | API Docs (Swagger) | Railway | https://spiritual-chatbot-api.onrender.com/docs |
 
@@ -253,7 +253,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-Built by **Francesco Cavina** · Powered by RAG + GPT-4 Turbo + ChromaDB  
-[GitHub](https://github.com/FrancescoCavina02/Spiritual-chatbot) · [Live Demo](https://spiritualchatbot1.netlify.app)
+Built by **[Francesco Cavina](https://francesco-cavina.netlify.app/)** · Powered by RAG + GPT-4 Turbo + ChromaDB  
+[GitHub](https://github.com/FrancescoCavina02/Spiritual-chatbot) · [Live Demo](https://spiritualchatbot1.netlify.app) · [Portfolio](https://francesco-cavina.netlify.app/)
 
 </div>

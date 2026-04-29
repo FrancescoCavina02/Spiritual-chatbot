@@ -103,7 +103,14 @@ export default function Home() {
           ))}
         </div>
         <p className="text-sm text-stone-400 pt-2">
-          Francesco Cavina
+          <a
+            href="https://francesco-cavina.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-teal-600 transition-colors duration-200"
+          >
+            Francesco Cavina
+          </a>
         </p>
       </div>
     </div>

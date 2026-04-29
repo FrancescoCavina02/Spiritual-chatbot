@@ -86,7 +86,7 @@ Before clicking deploy, click on **Add environment variables**:
 
 ### Step 3: Wait for Build
 
-Netlify takes ~2 minutes to build the Next.js app. Once finished, you will receive a free public URL (e.g., `https://magnificent-peony-1234.netlify.app`). You can customize this domain name in **Site settings** → **Domain management**.
+Netlify takes ~2 minutes to build the Next.js app. Once finished, you will receive a free public URL (e.g., `https://spiritualchatbot1.netlify.app`). You can customize this domain name in **Site settings** → **Domain management**.
 
 ### Step 4: Update Render CORS
 
